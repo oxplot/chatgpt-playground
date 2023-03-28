@@ -1,0 +1,7 @@
+a.info:hover {
+  text-decoration: none;
+}
+
+a.info::before {
+  content: " ⓘ ";
+}

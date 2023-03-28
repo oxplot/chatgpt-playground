@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "build": "mkdir -p out && cp -f index.html out && NODE_ENV=production npx esbuild src/main.jsx --minify --bundle --outfile=out/main.js --jsx=automatic --sourcemap=external --loader:.svg=file",
+    "dev": "mkdir -p out && cp -f index.html out && npx esbuild src/main.jsx --bundle --outfile=out/main.js --jsx=automatic --sourcemap=inline --loader:.svg=file --watch --servedir=out"
+  },
+  "dependencies": {
+    "gzip-js": "^0.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "ajv": "^8.12.0",
+    "esbuild": "^0.18.10"
+  }
+}

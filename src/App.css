@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Jura&display=swap');
+
+* {
+  box-sizing: border-box;
+  font-family: 'Jura', sans-serif;
+}
+
+a {
+  color: #0961be;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  margin-top: 0.1em;
+}
+
+html {
+  background-color: white;
+  background-image: url('bg.svg');
+  background-size: 35.5px;
+  background-position: -5px -5px;
+}
+
+#root,
+html,
+body {
+  font-size: 14px;
+  line-height: 1.5em;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+input,
+select,
+textarea {
+  padding: 0.2em 0.5em;
+  font-size: 100%;
+  line-height: 1.5em;
+}
+
+.invalid {
+  border-color: red;
+}
+
+.done::after {
+  content: " ✔"
+}
+
+textarea,
+.textarea {
+  width: 100%;
+  margin: 0;
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+textarea {
+  resize: none;
+  min-height: 3em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+  outline: none;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: bold;
+  margin: 0.5em 0;
+}
+
+h1 {
+  font-size: 180%;
+}
+
+h2 {
+  font-size: 130%;
+}
+
+h3 {
+  font-size: 120%;
+}
+
+h4 {
+  font-size: 110%;
+}
+
+h5,
+h6 {
+  font-size: 100%;
+}
+
+code {
+  font-family: monospace;
+}
+
+.titleBox {
+  font-size: 130%;
+  font-weight: bold;
+  min-height: 0px;
+  border-top: 0;
+}
+
+.saveBox {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.app.column {
+  float: left;
+  padding: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.app.column.knobs {
+  width: 200px;
+}
+
+.app.column.conversation,
+.app.column.system {
+  width: calc((100% - 200px) / 2);
+}
+
+.app.column.conversation {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+
+.knobs label {
+  display: block;
+  margin-top: 0.5em;
+}
+
+.knobs select,
+.knobs input[type="text"],
+.knobs input[type="range"],
+.knobs input[type="number"] {
+  width: 100%;
+}
+
+.open-api-key,
+.docs {
+  float: right;
+  margin-left: 0.5em;
+}
+
+.stop-sequences {
+  height: 8em;
+}
+
+.cost-item::before {
+  content: "~$ ";
+}

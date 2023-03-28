@@ -1,0 +1,63 @@
+.messages {
+  margin-bottom: 1em;
+}
+
+.messages>.message>.function-name {
+  border-bottom: 0;
+}
+
+.messages>.message>.delete {
+  cursor: pointer;
+  float: right;
+  margin-left: 0.5em;
+  padding: 0 0.5em;
+  color: #555;
+}
+
+.messages>.message>.delete:hover {
+  color: white;
+  background: red;
+}
+
+.messages>.message>.delete::before {
+  content: "×";
+}
+
+.messages>.message>.type:hover {
+  background: #eee;
+}
+
+.messages>.message>.type {
+  cursor: pointer;
+}
+
+.messages>.message[data-type="user"]>.type::before {
+  content: "User";
+}
+
+.messages>.message[data-type="assistant"]>.type::before {
+  content: "Assistant";
+}
+
+.messages>.message[data-type="function_call"]>.type::before {
+  content: "Assistant (Function Call)";
+}
+
+.messages>.message[data-type="function_result"]>.type::before {
+  content: "User (Function Result)";
+}
+
+.messages>.message>.type::after {
+  content: " ⮂:";
+}
+
+.submit-request,
+.cancel-request {
+  float: right;
+}
+
+.stop-reason {
+  color: crimson;
+  float: right;
+  margin-right: 0.5em;
+}
