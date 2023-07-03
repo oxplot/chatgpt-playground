@@ -241,7 +241,7 @@ export default function App() {
 
       <AutoExtendingTextarea
         rows="1"
-        placeholder="Untitled ChatGPT Playground Session"
+        placeholder="Untitled ChatGPT Playground Session 🖉"
         className="titleBox"
         value={state.title || ''}
         onInput={setTitle}
