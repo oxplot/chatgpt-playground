@@ -89,7 +89,7 @@ export function CopyLinkButton({ children = "Copy Link", appState }) {
       url += appState.title.replace(/[\/%#:\s]+/g, "_") + ":";
     }
     try {
-      url += hashEncode(JSON.stringify(appState));
+      url += hashEncode(appState);
       copyToClipboard(url);
       e.target.classList.add('done');
       setTimeout(() => e.target.classList.remove('done'), 1000);

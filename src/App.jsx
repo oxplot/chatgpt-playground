@@ -205,7 +205,7 @@ export default function App() {
         const urlParts = window.location.href.split('#');
         window.history.replaceState(null, null, urlParts[0]);
         try {
-          loadState(JSON.parse(hashDecode(urlParts[1])));
+          loadState(hashDecode(urlParts[1]));
         } catch (e) {
           alert('Failed to load state from URL:' + e);
         }
