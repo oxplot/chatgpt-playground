@@ -46,6 +46,9 @@ export function createRequest({ apiKey, payload, dataCallback }) {
             return;
           }
           const data = JSON.parse(line);
+          if (data.error) {
+            throw `${data.error.type}: ${data.error.message}`;
+          }
           await dataCallback(data.choices[0]);
         }
       }
