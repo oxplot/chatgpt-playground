@@ -12,7 +12,7 @@ import { FunctionCallSelector } from './FunctionCallSelector.jsx';
 import InfoLabel from './InfoLabel.jsx';
 import StopSequences from './StopSequences.jsx';
 import Functions from './Functions.jsx';
-import { hashDecode } from './AppStateCodec.jsx';
+import WindowHash from './WindowHash.jsx';
 
 // Converts the ad-hoc state format of pre-react version to official OpenAI's
 // payload format.
@@ -61,8 +61,7 @@ export default function App() {
     frequency_penalty: 0,
   }));
   const [defaultReplaceVar, setDefaultReplaceVar] = useLocalStorage("chatgpt-playground-default-replace-var", "true");
-
-  const [state, unvalidatedSetState] = useState({
+  const defaultState = {
     openai_payload: {
       ...JSON.parse(defaultSettings),
       messages: [{
@@ -72,7 +71,9 @@ export default function App() {
     },
     replace_variables: JSON.parse(defaultReplaceVar),
     vars: {},
-  });
+  };
+
+  const [state, unvalidatedSetState] = useState(defaultState);
   const renderedPayload = state.replace_variables ? Vars.sub(state.openai_payload, state.vars) : state.openai_payload;
 
   // Sets the app state only after validation succeeds.
@@ -198,21 +199,6 @@ export default function App() {
   const { roundTrips, totalCost } = OpenAI.estimateCost(renderedPayload);
 
   const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      if (window.location.hash.length > 1) {
-        const urlParts = window.location.href.split('#');
-        window.history.replaceState(null, null, urlParts[0]);
-        try {
-          loadState(hashDecode(urlParts[1]));
-        } catch (e) {
-          alert('Failed to load state from URL:' + e);
-        }
-      }
-    }, 200);
-    return () => window.clearInterval(interval);
-  }, []);
 
   const setSystemPrompt = useCallback(sysPrompt => {
     setPayloadKey('messages', msgs => {
@@ -409,5 +395,7 @@ export default function App() {
       onCancel={() => setShowAPIKeyModal(false)}
     />
     }
+
+    <WindowHash state={state} defaultState={defaultState} loadState={loadState} />
   </>
 }

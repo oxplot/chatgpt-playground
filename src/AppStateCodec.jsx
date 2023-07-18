@@ -26,4 +26,13 @@ export function hashDecode(v) {
   throw "Invalid state encoding";
 }
 // Encoder only does one combination: gzip and ap encoding.
-export const hashEncode = (v) => gzip.zip(new TextEncoder('utf8').encode(JSON.stringify(v))).map(i => String.fromCharCode(97 + Math.floor(i / 16)) + String.fromCharCode(97 + i % 16)).join('');
+export const hashEncode = (v) => {
+  const d = new TextEncoder('utf8').encode(JSON.stringify(v));
+  const opts = { timestamp: 1 }; // Ensures that the output is deterministic.
+  let h = gzip.zip(d, opts).map(i => String.fromCharCode(97 + Math.floor(i / 16)) + String.fromCharCode(97 + i % 16)).join('');
+  const title = (v.title || '').trim();
+  if (title) {
+    h = title.replace(/[\/%#:\s]+/g, "_") + ":" + h;
+  }
+  return h;
+};
