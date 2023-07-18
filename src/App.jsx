@@ -233,6 +233,8 @@ export default function App() {
         onInput={setTitle}
       />
       <div className="saveBox">
+        <button onClick={() => open(window.location.href.split('#')[0])}>New</button>
+        &nbsp;|&nbsp;
         <LoadButton setAppState={loadState}>Load from</LoadButton>
         &nbsp;/&nbsp;
         <SaveButton appState={state}>Save to</SaveButton>
