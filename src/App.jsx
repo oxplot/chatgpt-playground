@@ -398,6 +398,6 @@ export default function App() {
     />
     }
 
-    <WindowHash state={state} defaultState={defaultState} loadState={loadState} />
+    <WindowHash state={state} setState={setState} defaultState={defaultState} loadState={loadState} />
   </>
 }
