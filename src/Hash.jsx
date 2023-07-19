@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
 export const useHash = () => {
-  const [hash, setHash] = useState(() => window.location.hash);
+  const [hash, setHash] = useState(() => window.location.hash.replace(/^#/, ''));
 
   useEffect(() => {
     const handler = () => setHash(window.location.hash.replace(/^#/, ''));
