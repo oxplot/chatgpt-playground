@@ -50,26 +50,47 @@ const validateState = (() => {
   };
 })();
 
+const baseDefaultSetting = {
+  model: "gpt-4-0314",
+  temperature: 0.7,
+  top_p: 1,
+  max_tokens: 256,
+  presence_penalty: 0,
+  frequency_penalty: 0,
+};
+
 export default function App() {
 
-  const [defaultSettings, setDefaultSettings] = useLocalStorage("chatgpt-playground-default-settings", JSON.stringify({
-    model: "gpt-4-0314",
-    temperature: 0.7,
-    top_p: 1,
-    max_tokens: 256,
-    presence_penalty: 0,
-    frequency_penalty: 0,
-  }));
+  const [defaultSettings, setDefaultSettings] = useLocalStorage("chatgpt-playground-default-settings", JSON.stringify(baseDefaultSetting));
   const [defaultReplaceVar, setDefaultReplaceVar] = useLocalStorage("chatgpt-playground-default-replace-var", "true");
   const defaultState = {
     openai_payload: {
-      ...JSON.parse(defaultSettings),
+      ...(() => {
+        try {
+          return JSON.parse(defaultSettings);
+        } catch (e) {
+          return baseDefaultSetting;
+        }
+      })(),
       messages: [{
         role: "system",
         content: "",
       }],
     },
-    replace_variables: JSON.parse(defaultReplaceVar),
+    replace_variables: (() => {
+      try {
+        // There was a bug where we stored undefined for true value so we need
+        // to treat this special.
+        if (defaultReplaceVar === "undefined") {
+          return true;
+        }
+        // We only want true to set replaceVar to true, not non-empty strings,
+        // positive numbers, etc.
+        return JSON.parse(defaultReplaceVar) === true;
+      } catch (e) {
+        return false;
+      }
+    })(),
     vars: {},
   };
 
@@ -313,7 +334,7 @@ export default function App() {
           style={{ float: "right" }}
           title="Save current settings as default"
           onClick={e => {
-            setDefaultReplaceVar(JSON.stringify(state.replace_variables));
+            setDefaultReplaceVar(JSON.stringify(state.replace_variables || false));
             setDefaultSettings(JSON.stringify({
               model: state.openai_payload.model,
               temperature: state.openai_payload.temperature,
