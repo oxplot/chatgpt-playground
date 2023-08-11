@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import { } from "react";
+import AutoExtendingTextarea from "./AutoExtendingTextarea";
 
 function strToList(s) {
   const l = s.split("\n").filter(v => v);
@@ -38,12 +39,11 @@ export default function StopSequences({ stopSequences, setStopSequences }) {
     setValue(listToStr(stopSequences));
   }, [stopSequences]);
 
-  return <textarea
+  return <AutoExtendingTextarea
     ref={ref}
     onInput={onInput}
     onBlur={onBlur}
     value={value}
-    style={{ height: "8em" }}
     className={valid ? '' : 'invalid'}
   />;
 }

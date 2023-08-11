@@ -1,4 +1,5 @@
 import validate from "./openai-payload-validate.js";
+import { encode, decode } from "gpt-tokenizer/esm/encoding/cl100k_base"
 
 export function createRequest({ apiKey, payload, dataCallback }) {
   const abortController = new AbortController();
@@ -131,6 +132,12 @@ export function createValidator() {
         nameSet.add(fn.name);
       }
     }
+    // Logit bias keys must be non-negative integers.
+    for (const key of Object.keys(p.logit_bias || {})) {
+      if (!/^\d+$/.test(key)) {
+        throw "Logit bias keys must be non-negative integers.";
+      }
+    }
   };
 }
 
@@ -188,4 +195,18 @@ export function ModelDropdown({ model, setModel }) {
     <option disabled>Snapshots</option>
     {models.filter(m => !m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
   </select>;
+}
+
+function flushTokenizerState() {
+  decode(encode("1 2 3 4"));
+}
+
+export function TokensToText(t) {
+  flushTokenizerState();
+  return decode(t);
+}
+
+export function TextToTokens(t) {
+  flushTokenizerState();
+  return encode(t);
 }

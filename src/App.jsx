@@ -13,6 +13,7 @@ import InfoLabel from './InfoLabel.jsx';
 import StopSequences from './StopSequences.jsx';
 import Functions from './Functions.jsx';
 import WindowHash from './WindowHash.jsx';
+import LogitBiasSet from './LogitBias.jsx';
 
 // Converts the ad-hoc state format of pre-react version to official OpenAI's
 // payload format.
@@ -135,11 +136,14 @@ export default function App() {
           vars: s.vars,
         };
       }
+      if (s.replace_variables === undefined) {
+        s.replace_variables = true;
+      }
       validateState(s);
-      setState(s);
+      unvalidatedSetState(s);
       return true;
     } catch (e) {
-      alert("Load failed: " + e);
+      alert("Load failed: " + JSON.stringify(e));
       return false;
     }
   });
@@ -268,7 +272,7 @@ export default function App() {
       <div className="prompt">
         <AutoExtendingTextarea
           ref={systemRef}
-          onInput={useCallback(e => setSystemPrompt(e.target.value))}
+          onInput={e => setSystemPrompt(e.target.value)}
           value={state.openai_payload.messages[0].content || ''}
         />
       </div>
@@ -278,7 +282,7 @@ export default function App() {
       <div>
         <Functions
           functions={state.openai_payload.functions}
-          setFunctions={useCallback(fs => setPayloadKey('functions', fs))}
+          setFunctions={fs => setPayloadKey('functions', fs)}
         />
       </div>
 
@@ -287,7 +291,7 @@ export default function App() {
         <input
           type="checkbox"
           title="Enable"
-          onChange={useCallback(e => setState(s => ({ ...s, replace_variables: e.target.checked })))}
+          onChange={e => setState(s => ({ ...s, replace_variables: e.target.checked }))}
           checked={state.replace_variables}
           style={{ float: "right" }}
         />
@@ -400,13 +404,11 @@ export default function App() {
         setStopSequences={v => setPayloadKey('stop', v)}
       />
 
-      <h3>Preload state</h3>
-      <p>
-        Preload the state by hex encoding the state JSON object in the URL
-        fragment. Get an example of JSON state by clicking "Save to" button. You
-        can optionally gzip the JSON before hex encoding it. Instead of 0-9a-f
-        characters in hex encoding, you can use a-p.
-      </p>
+      <label>Logit Bias<InfoLabel href="logit_bias" /></label>
+      <LogitBiasSet
+        logitBiasSet={state.openai_payload.logit_bias}
+        setLogitBiasSet={v => setPayloadKey('logit_bias', v)}
+      />
     </div >
 
     {showAPIKeyModal && <APIKeyModal

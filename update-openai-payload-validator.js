@@ -14,10 +14,15 @@ const standaloneCode = require('ajv/dist/standalone').default;
 
 // HACK patch the incorrect schema
 function patchSchema(s) {
-  const modelProp = s.properties.model;
-  modelProp.oneOf = modelProp.oneOf.filter(i => i.enum).map(i => ({
-    ...i, enum: [...i.enum, 'gpt-4-0314', 'gpt-3.5-turbo-0301']
-  }));
+
+  // Restrict logit_bias values.
+
+  s.properties.logit_bias.additionalProperties = {
+    ...s.properties.logit_bias.additionalProperties,
+    type: "number",
+    minimum: -100,
+    maximum: 100
+  };
 }
 
 (async function ({ revision = 'master' }) {

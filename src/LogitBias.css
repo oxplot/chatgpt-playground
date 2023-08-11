@@ -1,0 +1,61 @@
+.logit-bias-set .item .delete {
+  cursor: pointer;
+  padding: 0.4em;
+  color: #555;
+}
+
+.logit-bias-set .item .delete:hover {
+  color: white;
+  background: red;
+}
+
+.logit-bias-set .item .delete::before {
+  content: "×";
+}
+
+.logit-bias-set .token {
+  padding-right: 0.5em;
+}
+
+.logit-bias-set {
+  width: 100%;
+  margin: 0.3em 0 1em;
+}
+
+.logit-bias-add-modal input[type="text"] {
+  width: 100%;
+}
+
+.logit-bias-add-modal .add-tokens {
+  margin-bottom: 1em;
+}
+
+.logit-bias-add-modal .add-tokens>span {
+  display: inline-block;
+  cursor: pointer;
+  background-color: #666;
+  color: #fff;
+  padding: 0 0.3em;
+  margin: 0.1em 0;
+  border-radius: 0.2em;
+  white-space: pre;
+}
+
+.logit-bias-add-modal .add-tokens>span.unusable {
+  cursor: inherit;
+}
+
+.logit-bias-add-modal .add-tokens>span.unusable:hover {
+  background-color: rgb(255, 170, 0);
+  color: #fff;
+}
+
+.logit-bias-add-modal .add-tokens>span:nth-child(odd) {
+  background-color: #eee;
+  color: #000;
+}
+
+.logit-bias-add-modal .add-tokens>span:hover {
+  background-color: #d7f495;
+  color: #000;
+}

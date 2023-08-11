@@ -4,6 +4,7 @@
     "dev": "mkdir -p out && cp -f favicon.png index.html out && npx esbuild src/main.jsx --bundle --outfile=out/main.js --jsx=automatic --sourcemap=inline --loader:.svg=file --watch --servedir=out"
   },
   "dependencies": {
+    "gpt-tokenizer": "^2.1.1",
     "gzip-js": "^0.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
