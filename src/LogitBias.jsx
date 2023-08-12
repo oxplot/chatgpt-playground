@@ -1,7 +1,7 @@
 
 import "./LogitBias.css";
 import NumberInput from "./NumberInput";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TextToTokens, TokensToText } from "./OpenAI";
 import { Modal } from "./Modal";
 
@@ -56,6 +56,13 @@ export default function LogitBiasSet({ logitBiasSet, setLogitBiasSet }) {
     closeAdd();
   }, [setLogitBiasSet]);
 
+  const addRef = useRef(null);
+  useEffect(() => {
+    if (showAddModal && addRef) {
+      addRef.current.focus();
+    }
+  }, [showAddModal]);
+
   return <>
     <table className="logit-bias-set"><tbody>
       {Object.keys(logitBiasSet || {}).sort().map(token =>
@@ -93,6 +100,7 @@ export default function LogitBiasSet({ logitBiasSet, setLogitBiasSet }) {
       >
         <h2>Add Logit Bias</h2>
         <div><input
+          ref={addRef}
           type="text"
           value={addText}
           onChange={onAddTextChange}
