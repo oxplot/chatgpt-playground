@@ -59,3 +59,7 @@
   background-color: #d7f495;
   color: #000;
 }
+
+.logit-bias-add-modal .add-all {
+  margin-left: 1em;
+}

@@ -63,6 +63,16 @@ export default function LogitBiasSet({ logitBiasSet, setLogitBiasSet }) {
     }
   }, [showAddModal]);
 
+  const addAllTokens = useCallback(() => {
+    addTextTokens.forEach(token => {
+      if (token !== -1) {
+        setLogitBiasSet(v => ({ ...v, [`${token}`]: 0 }));
+      }
+    });
+    closeAdd();
+  }, [addTextTokens, setLogitBiasSet, closeAdd]);
+
+
   return <>
     <table className="logit-bias-set"><tbody>
       {Object.keys(logitBiasSet || {}).sort().map(token =>
@@ -110,12 +120,15 @@ export default function LogitBiasSet({ logitBiasSet, setLogitBiasSet }) {
         <div className="add-tokens">
           {addTextTokens.length === 0 ?
             <i>no tokens</i> :
-            addTextTokens.map((token, i) =>
-              token === -1 ?
-                <span key={i} className="unusable" title="Unusable">{visualToken(token)}</span>
-                :
-                <span key={i} title={`ID: ${token}`} onClick={() => addToken(token)}>{visualToken(token)}</span>
-            )
+            <>
+              {addTextTokens.map((token, i) =>
+                token === -1 ?
+                  <span key={i} className="unusable" title="Unusable">{visualToken(token)}</span>
+                  :
+                  <span key={i} title={`ID: ${token}`} onClick={() => addToken(token)}>{visualToken(token)}</span>
+              )}
+              <button className="add-all" onClick={addAllTokens}>Add all</button>
+            </>
           }
         </div>
         <button onClick={closeAdd}>Cancel</button>
