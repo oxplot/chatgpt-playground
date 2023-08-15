@@ -67,7 +67,7 @@ export default function LogitBiasSet({ logitBiasSet, setLogitBiasSet }) {
     <table className="logit-bias-set"><tbody>
       {Object.keys(logitBiasSet || {}).sort().map(token =>
         <tr key={token} className="item">
-          <td className="token" title={token}>{visualToken(token)}</td>
+          <td className="token" title={`ID: ${token}`}>{visualToken(token)}</td>
           <td>
             <NumberInput
               number={logitBiasSet[token]}
@@ -114,7 +114,7 @@ export default function LogitBiasSet({ logitBiasSet, setLogitBiasSet }) {
               token === -1 ?
                 <span key={i} className="unusable" title="Unusable">{visualToken(token)}</span>
                 :
-                <span key={i} onClick={() => addToken(token)}>{visualToken(token)}</span>
+                <span key={i} title={`ID: ${token}`} onClick={() => addToken(token)}>{visualToken(token)}</span>
             )
           }
         </div>

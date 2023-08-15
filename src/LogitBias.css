@@ -42,7 +42,7 @@
 }
 
 .logit-bias-add-modal .add-tokens>span.unusable {
-  cursor: inherit;
+  cursor: default;
 }
 
 .logit-bias-add-modal .add-tokens>span.unusable:hover {
