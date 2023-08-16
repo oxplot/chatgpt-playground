@@ -141,7 +141,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
             className="content"
             value={
               (m.function_call ? m.function_call.arguments : m.content) +
-              (streaming ? '▏' : '')
+              (i === messages.length - 1 && streaming ? '▏' : '')
             }
             placeholder={{
               "function_call": "Function Arguments",
