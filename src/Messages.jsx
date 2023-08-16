@@ -139,7 +139,10 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
               setMessages([...messages.slice(0, i), mm, ...messages.slice(i + 1)]);
             }}
             className="content"
-            value={m.function_call ? m.function_call.arguments : m.content}
+            value={
+              (m.function_call ? m.function_call.arguments : m.content) +
+              (streaming ? '▏' : '')
+            }
             placeholder={{
               "function_call": "Function Arguments",
               "function_result": "Function Result",
