@@ -158,7 +158,7 @@ code {
 }
 
 .open-api-key,
-.docs {
+.open-completion-url {
   float: right;
   margin-left: 0.5em;
 }

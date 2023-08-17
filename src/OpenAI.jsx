@@ -1,11 +1,13 @@
 import validate from "./openai-payload-validate.js";
 import { encode, decode } from "gpt-tokenizer/esm/encoding/cl100k_base"
 
-export function createRequest({ apiKey, payload, dataCallback }) {
+export const openAICompletionURL = "https://api.openai.com/v1/chat/completions";
+
+export function createRequest({ apiKey, payload, dataCallback, completionURL = openAICompletionURL }) {
   const abortController = new AbortController();
   return {
     send: async () => {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch(completionURL, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + apiKey,

@@ -14,6 +14,7 @@ import StopSequences from './StopSequences.jsx';
 import Functions from './Functions.jsx';
 import WindowHash from './WindowHash.jsx';
 import LogitBiasSet from './LogitBias.jsx';
+import { CompletionURLModal } from './CompletionURLModal.jsx';
 
 // Converts the ad-hoc state format of pre-react version to official OpenAI's
 // payload format.
@@ -40,6 +41,7 @@ function oldStateToOpenAIPayload(state) {
 }
 
 const apiKeyLocalStorageKey = "chatgpt-playground-api-key";
+const completionURLLocalStorageKey = "chatgpt-playground-completion-url";
 
 const validateState = (() => {
   const validate = OpenAI.createValidator();
@@ -192,6 +194,7 @@ export default function App() {
   });
 
   const [apiKey, setAPIKey] = useLocalStorage(apiKeyLocalStorageKey, "");
+  const [completionURL, setCompletionURL] = useLocalStorage(completionURLLocalStorageKey, OpenAI.openAICompletionURL);
   const [openAIRequest, setOpenAIRequest] = useState(null);
   const [stopReason, setStopReason] = useState('');
   const submit = useCallback(async () => {
@@ -205,6 +208,7 @@ export default function App() {
       apiKey,
       payload: renderedPayload,
       dataCallback,
+      completionURL
     });
     setOpenAIRequest(req);
     try {
@@ -213,7 +217,7 @@ export default function App() {
       setStopReason(e + '');
     }
     setOpenAIRequest(null);
-  }, [apiKey, renderedPayload]);
+  }, [apiKey, renderedPayload, completionURL, dataCallback]);
 
   const cancel = useCallback(() => {
     if (openAIRequest) {
@@ -224,6 +228,7 @@ export default function App() {
   const { roundTrips, totalCost } = OpenAI.estimateCost(renderedPayload);
 
   const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
+  const [showCompletionURLModal, setShowCompletionURLModal] = useState(false);
 
   const setSystemPrompt = useCallback(sysPrompt => {
     setPayloadKey('messages', msgs => {
@@ -321,7 +326,7 @@ export default function App() {
 
     <div className="app column knobs">
       <button className="open-api-key" onClick={() => setShowAPIKeyModal(true)} title="Set API Key">🔑</button>
-      <button onClick={() => window.open("https://platform.openai.com/docs/api-reference/chat/create", "_blank")} className="docs" title="Show API reference">📄</button>
+      <button className="open-completion-url" onClick={() => setShowCompletionURLModal(true)} title="Set Completion URL">🌐</button>
 
       <h2>Cost</h2>
 
@@ -418,6 +423,16 @@ export default function App() {
         setShowAPIKeyModal(false);
       }}
       onCancel={() => setShowAPIKeyModal(false)}
+    />
+    }
+
+    {showCompletionURLModal && <CompletionURLModal
+      completionURL={completionURL}
+      onSave={v => {
+        setCompletionURL(v)
+        setShowCompletionURLModal(false);
+      }}
+      onCancel={() => setShowCompletionURLModal(false)}
     />
     }
 
