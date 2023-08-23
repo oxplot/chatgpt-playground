@@ -1,5 +1,6 @@
 import validate from "./openai-payload-validate.js";
 import { encode, decode } from "gpt-tokenizer/esm/encoding/cl100k_base"
+import { useEffect } from "react";
 
 export const openAICompletionURL = "https://api.openai.com/v1/chat/completions";
 
@@ -111,6 +112,8 @@ export const models = [
   },
 ];
 
+modelNamesSortedByLength = models.map(m => m.id).sort((a, b) => b.length - a.length);
+
 export function createValidator() {
   return p => {
     const a = new Date().getTime();
@@ -149,12 +152,30 @@ const charToTokenRatio = 0.34;
 
 export function estimateCost(payload) {
 
-  let model = models.find(m => m.id === payload.model);
-  if (model.alias) {
-    model = models.find(m => m.id == model.alias);
+  // Fine tuned models embed the name of the underyling models in them. We can
+  // therefore search the based model names in the fine tuned model and
+  // determine the model object that way.
+
+  let model = null;
+  for (const modelName of modelNamesSortedByLength) {
+    if (payload.model.includes(modelName)) {
+      model = models.find(m => m.id === modelName);
+      break;
+    }
   }
-  var totalCost = 0;
-  var roundTrips = 0;
+
+  let modelPromptCost = 0;
+  let modelCompletionCost = 0;
+  const validModel = !!model;
+  if (model) {
+    if (model.alias) {
+      model = models.find(m => m.id == model.alias);
+    }
+    modelPromptCost = model.promptCost;
+    modelCompletionCost = model.completionCost;
+  }
+  let totalCost = 0;
+  let roundTrips = 0;
 
   // Walk through the conversation.
   // Skip to end of each consequetive sequence of user messages.
@@ -166,8 +187,8 @@ export function estimateCost(payload) {
       const promptChars = payload.messages.slice(0, upTo).map(
         m => m.function_call ? m.function_call.arguments : m.content
       ).join('').length;
-      const promptCost = promptChars * charToTokenRatio * model.promptCost;
-      const completionCost = (msg.function_call ? msg.function_call.arguments : msg.content).length * charToTokenRatio * model.completionCost;
+      const promptCost = promptChars * charToTokenRatio * modelPromptCost;
+      const completionCost = (msg.function_call ? msg.function_call.arguments : msg.content).length * charToTokenRatio * modelCompletionCost;
       totalCost += promptCost + completionCost;
       roundTrips++;
     }
@@ -178,7 +199,7 @@ export function estimateCost(payload) {
     const promptChars = payload.messages.slice(0, upTo).map(
       m => m.function_call ? m.function_call.arguments : m.content
     ).join('').length;
-    const promptCost = promptChars * charToTokenRatio * model.promptCost;
+    const promptCost = promptChars * charToTokenRatio * modelPromptCost;
     totalCost += promptCost;
   }
 
@@ -188,17 +209,32 @@ export function estimateCost(payload) {
     totalCost += promptCost;
   }
 
-  return { totalCost, roundTrips };
+  return { totalCost: validModel ? totalCost : null, roundTrips };
 }
 
 export function ModelDropdown({ model, setModel }) {
-  return <select onChange={e => setModel(e.target.value)} value={model}>
-    {models.filter(m => m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
-    <option disabled>Snapshots</option>
-    {models.filter(m => !m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
-  </select>;
+  const baseModel = !!models.find(m => m.id === model);
+  return <>
+    <select onChange={e => setModel(e.target.value)} value={baseModel ? model : ""}>
+      {models.filter(m => m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
+      <option disabled>Snapshots</option>
+      {models.filter(m => !m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
+      <option disabled>Others</option>
+      <option value="">Custom</option>
+    </select>
+    {!baseModel &&
+      <input
+        type="text"
+        placeholder="Custom model name"
+        style={{ marginTop: "2px" }}
+        onChange={e => setModel(e.target.value)}
+        value={model} />
+    }
+  </>;
 }
 
+// This is necessary because the tokenizer is stateful to handle multi-GPT token
+// unicode characters.
 function flushTokenizerState() {
   decode(encode("1 2 3 4"));
 }

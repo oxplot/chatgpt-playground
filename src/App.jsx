@@ -225,7 +225,7 @@ export default function App() {
     }
   }, [openAIRequest]);
 
-  const { roundTrips, totalCost } = OpenAI.estimateCost(renderedPayload);
+  let { roundTrips, totalCost } = OpenAI.estimateCost(renderedPayload);
 
   const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
   const [showCompletionURLModal, setShowCompletionURLModal] = useState(false);
@@ -333,9 +333,15 @@ export default function App() {
       <p className="cost" title="Based on 30% character to token ratio estimate.">
         <span title="Usual # of completion API calls for current history.">
           Round Trips: <span>{roundTrips}</span></span><br />
-        <b>1x = </b><span className="cost-item">{totalCost.toFixed(2)}</span>*<br />
-        100x = <span className="cost-item">{(totalCost * 100).toFixed(2)}</span>*<br />
-        <i title="Calculated as if you started with only system prompt and got to this point.">* comulative</i>
+        {totalCost === null ?
+          <i>cost not available for selected model</i>
+          :
+          <>
+            <b>1x = </b><span className="cost-item">{totalCost.toFixed(2)}</span> * <br />
+            100x = <span className="cost-item">{(totalCost * 100).toFixed(2)}</span>*<br />
+            <i title="Calculated as if you started with only system prompt and got to this point.">* comulative</i>
+          </>
+        }
       </p>
 
       <h2>Settings
