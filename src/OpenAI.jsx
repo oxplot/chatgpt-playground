@@ -159,7 +159,10 @@ const charToTokenRatio = 0.34;
 
 export function estimateCost(payload) {
 
-  const model = models.find(m => m.id ? m.id === payload.model : payload.model.startsWith(m.prefix));
+  let model = models.find(m => m.id ? m.id === payload.model : payload.model.startsWith(m.prefix));
+  if (model && model.alias) {
+    model = models.find(m => m.id === model.alias);
+  }
 
   let totalCost = 0;
   let roundTrips = 0;
