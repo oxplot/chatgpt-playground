@@ -5,15 +5,18 @@ import AutoExtendingTextarea from "./AutoExtendingTextarea";
 
 // result of a function.
 export function sub(openai_payload, repl) {
-  if (typeof repl !== 'function') {
+  let replFn;
+  if (typeof repl === 'function') {
+    replFn = (_, v) => repl(v);
+  } else {
     let vars = repl;
-    repl = v => vars[v];
+    replFn = (_, v) => vars[v];
   }
   openai_payload = JSON.parse(JSON.stringify(openai_payload)); // clone
-  const pat = /(?<=\$\{)[a-z0-9_.-]+(?=\})/ig;
+  const pat = /\$\{([a-z0-9_.-]+)\}/ig;
   openai_payload.messages = openai_payload.messages.map(m => {
     if (m.role !== 'assistant') {
-      m.content = m.content.replace(pat, repl);
+      m.content = m.content.replace(pat, replFn);
     }
     return m;
   });
