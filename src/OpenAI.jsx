@@ -1,6 +1,5 @@
 import validate from "./openai-payload-validate.js";
 import { encode, decode } from "gpt-tokenizer/esm/encoding/cl100k_base"
-import { useEffect } from "react";
 
 export const openAICompletionURL = "https://api.openai.com/v1/chat/completions";
 
@@ -110,6 +109,14 @@ export const models = [
     promptCost: 0.0000015,
     completionCost: 0.000002,
   },
+
+  // Fine tuned and other base models.
+
+  {
+    prefix: "ft:gpt-3.5-turbo-0613:",
+    promptCost: 0.000012,
+    completionCost: 0.000016,
+  }
 ];
 
 modelNamesSortedByLength = models.map(m => m.id).sort((a, b) => b.length - a.length);
@@ -152,28 +159,8 @@ const charToTokenRatio = 0.34;
 
 export function estimateCost(payload) {
 
-  // Fine tuned models embed the name of the underyling models in them. We can
-  // therefore search the based model names in the fine tuned model and
-  // determine the model object that way.
+  const model = models.find(m => m.id ? m.id === payload.model : payload.model.startsWith(m.prefix));
 
-  let model = null;
-  for (const modelName of modelNamesSortedByLength) {
-    if (payload.model.includes(modelName)) {
-      model = models.find(m => m.id === modelName);
-      break;
-    }
-  }
-
-  let modelPromptCost = 0;
-  let modelCompletionCost = 0;
-  const validModel = !!model;
-  if (model) {
-    if (model.alias) {
-      model = models.find(m => m.id == model.alias);
-    }
-    modelPromptCost = model.promptCost;
-    modelCompletionCost = model.completionCost;
-  }
   let totalCost = 0;
   let roundTrips = 0;
 
@@ -184,41 +171,43 @@ export function estimateCost(payload) {
   for (var upTo = 0; upTo < payload.messages.length; upTo++) {
     const msg = payload.messages[upTo];
     if (msg.role === "assistant") {
-      const promptChars = payload.messages.slice(0, upTo).map(
-        m => m.function_call ? m.function_call.arguments : m.content
-      ).join('').length;
-      const promptCost = promptChars * charToTokenRatio * modelPromptCost;
-      const completionCost = (msg.function_call ? msg.function_call.arguments : msg.content).length * charToTokenRatio * modelCompletionCost;
-      totalCost += promptCost + completionCost;
+      if (model) {
+        const promptChars = payload.messages.slice(0, upTo).map(
+          m => m.function_call ? m.function_call.arguments : m.content
+        ).join('').length;
+        const promptCost = promptChars * charToTokenRatio * model.promptCost;
+        const completionCost = (msg.function_call ? msg.function_call.arguments : msg.content).length * charToTokenRatio * model.completionCost;
+        totalCost += promptCost + completionCost;
+      }
       roundTrips++;
     }
   }
   // In case the conversation doesn't end with assistant messages, just
   // calculate the prompt cost.
-  if (payload.messages.slice(-1)[0].role !== "assistant") {
+  if (model && payload.messages.slice(-1)[0].role !== "assistant") {
     const promptChars = payload.messages.slice(0, upTo).map(
       m => m.function_call ? m.function_call.arguments : m.content
     ).join('').length;
-    const promptCost = promptChars * charToTokenRatio * modelPromptCost;
+    const promptCost = promptChars * charToTokenRatio * model.promptCost;
     totalCost += promptCost;
   }
 
   // Add functions
-  if (payload.functions) {
+  if (model && payload.functions) {
     const promptCost = JSON.stringify(payload.functions).length * charToTokenRatio * model.promptCost;
     totalCost += promptCost;
   }
 
-  return { totalCost: validModel ? totalCost : null, roundTrips };
+  return { totalCost: model ? totalCost : null, roundTrips };
 }
 
 export function ModelDropdown({ model, setModel }) {
   const baseModel = !!models.find(m => m.id === model);
   return <>
     <select onChange={e => setModel(e.target.value)} value={baseModel ? model : ""}>
-      {models.filter(m => m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
+      {models.filter(m => m.id && m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
       <option disabled>Snapshots</option>
-      {models.filter(m => !m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
+      {models.filter(m => m.id && !m.alias).map(({ id }, i) => <option key={id} value={id}>{id}</option>)}
       <option disabled>Others</option>
       <option value="">Custom</option>
     </select>
