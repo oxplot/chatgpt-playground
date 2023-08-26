@@ -1,0 +1,13 @@
+.var-name {
+  border-bottom: 1px solid #ddd;
+  display: inline-block;
+  width: 100%;
+  top: -10px;
+  background-color: white;
+  position: sticky;
+  position: -webkit-sticky;
+}
+
+.var-value {
+  border-top: 0px;
+}

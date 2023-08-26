@@ -1,3 +1,4 @@
+import "./Vars.css";
 
 // Substitutes variables in the app state with their values from a map or with a
 
@@ -30,8 +31,9 @@ export function Vars({ openai_payload, appVars, setAppVars }) {
   return <div>
     {[...vars].sort().map(v =>
       <div key={v}>
-        <label>{v}</label>
+        <label className="var-name">{v}</label>
         <AutoExtendingTextarea
+          className="var-value"
           onInput={(e) => setAppVars({ ...appVars, [v]: e.target.value })}
           value={appVars[v] || ''}
         />
