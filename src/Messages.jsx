@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import AutoExtendingTextarea from "./AutoExtendingTextarea";
 import "./Messages.css";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from 'remark-gfm';
 
 const typeToRole = {
   'user': 'user',
@@ -26,7 +28,7 @@ function msgType(m) {
   }
 }
 
-export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming }) {
+export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown }) {
 
   // Auto scrolling behavior
 
@@ -127,28 +129,46 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
               value={m.role === 'function' ? m.name : m.function_call.name}
             />
             : ''}
-          <AutoExtendingTextarea
-            ref={i === messages.length - 1 ? lastMsgContentRef : undefined}
-            onInput={(e) => {
-              const mm = JSON.parse(JSON.stringify(m));
-              if (mm.function_call) {
-                mm.function_call.arguments = e.target.value;
-              } else {
-                mm.content = e.target.value
+          {markdown && msgType(m) === 'assistant' ?
+            <div class="markdown" ref={i === messages.length - 1 ? lastMsgContentRef : undefined}>
+              {m.content.trim() === '' && !(i === messages.length - 1 && streaming) ?
+                <div style={{ padding: "1em 0" }}>
+                  <i>empty markdown content&nbsp;-&nbsp;
+                    turn off markdown (📄) to edit.</i>
+                </div>
+                :
+                <ReactMarkdown
+                  linkTarget="_blank"
+                  remarkPlugins={[remarkGfm]}
+                  skipHtml={false}
+                  children={m.content + (i === messages.length - 1 && streaming ? '▏' : '')}
+                />
               }
-              setMessages([...messages.slice(0, i), mm, ...messages.slice(i + 1)]);
-            }}
-            className="content"
-            value={
-              (m.function_call ? m.function_call.arguments : m.content) +
-              (i === messages.length - 1 && streaming ? '▏' : '')
-            }
-            placeholder={{
-              "function_call": "Function Arguments",
-              "function_result": "Function Result",
-            }[msgType(m)] || ""}
-            readOnly={streaming && i === messages.length - 1}
-          />
+            </div>
+            :
+            <AutoExtendingTextarea
+              ref={i === messages.length - 1 ? lastMsgContentRef : undefined}
+              onInput={(e) => {
+                const mm = JSON.parse(JSON.stringify(m));
+                if (mm.function_call) {
+                  mm.function_call.arguments = e.target.value;
+                } else {
+                  mm.content = e.target.value
+                }
+                setMessages([...messages.slice(0, i), mm, ...messages.slice(i + 1)]);
+              }}
+              className="content"
+              value={
+                (m.function_call ? m.function_call.arguments : m.content) +
+                (i === messages.length - 1 && streaming ? '▏' : '')
+              }
+              placeholder={{
+                "function_call": "Function Arguments",
+                "function_result": "Function Result",
+              }[msgType(m)] || ""}
+              readOnly={streaming && i === messages.length - 1}
+            />
+          }
         </div>
       )}
     </div>

@@ -80,6 +80,7 @@ export default function App() {
         content: "",
       }],
     },
+    markdown: false,
     replace_variables: (() => {
       try {
         // There was a bug where we stored undefined for true value so we need
@@ -321,6 +322,7 @@ export default function App() {
         stopReason={stopReason}
         onSubmit={submit}
         onCancel={cancel}
+        markdown={!!state.markdown}
       />
     </div>
 
@@ -415,11 +417,21 @@ export default function App() {
         setStopSequences={v => setPayloadKey('stop', v)}
       />
 
+
+      <label for="render-markdown" title="Render assitant messages as markdown">
+        Render Markdown
+        <input id="render-markdown" type="checkbox" style={{ float: "right" }}
+          onChange={e => setState(s => ({ ...s, markdown: e.target.checked }))}
+          checked={!!state.markdown}
+        />
+      </label>
+
       <label>Logit Bias<InfoLabel href="logit_bias" /></label>
       <LogitBiasSet
         logitBiasSet={state.openai_payload.logit_bias}
         setLogitBiasSet={v => setPayloadKey('logit_bias', v)}
       />
+
     </div >
 
     {showAPIKeyModal && <APIKeyModal
