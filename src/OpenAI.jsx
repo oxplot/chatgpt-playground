@@ -79,6 +79,18 @@ export const models = [
   },
 
   {
+    id: "gpt-4-1106-preview",
+    promptCost: 0.00001,
+    completionCost: 0.00003,
+  },
+  {
+    id: "gpt-3.5-turbo-1106",
+    promptCost: 0.000001,
+    completionCost: 0.000002,
+  },
+
+
+  {
     id: "gpt-4-0613",
     promptCost: 0.00003,
     completionCost: 0.00006,
@@ -109,6 +121,7 @@ export const models = [
     promptCost: 0.0000015,
     completionCost: 0.000002,
   },
+
 
   // Fine tuned and other base models.
 
