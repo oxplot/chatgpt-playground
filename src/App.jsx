@@ -54,7 +54,7 @@ const validateState = (() => {
 })();
 
 const baseDefaultSetting = {
-  model: "gpt-4-0314",
+  model: "gpt-4",
   temperature: 0.7,
   top_p: 1,
   max_tokens: 256,
@@ -383,6 +383,12 @@ export default function App() {
       <NumberInput
         number={state.openai_payload.top_p}
         setNumber={v => setPayloadKey('top_p', v)}
+      />
+
+      <label>Seed<InfoLabel href="seed" /></label>
+      <NumberInput
+        number={state.openai_payload.seed}
+        setNumber={v => setPayloadKey('seed', v)}
       />
 
       <label>Max. Tokens<InfoLabel href="max_tokens" /></label>
