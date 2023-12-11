@@ -15,6 +15,7 @@ import Functions from './Functions.jsx';
 import WindowHash from './WindowHash.jsx';
 import LogitBiasSet from './LogitBias.jsx';
 import { CompletionURLModal } from './CompletionURLModal.jsx';
+import { ResponseFormatSelector } from './ResponseFormatSelector.jsx';
 
 // Converts the ad-hoc state format of pre-react version to official OpenAI's
 // payload format.
@@ -398,6 +399,11 @@ export default function App() {
         setNumber={v => setPayloadKey('max_tokens', v)}
       />
 
+      <ResponseFormatSelector
+        responseFormat={state.openai_payload.response_format}
+        setResponseFormat={v => setPayloadKey('response_format', v)}
+      />
+
       <FunctionCallSelector
         functions={state.openai_payload.functions}
         functionCall={state.openai_payload.function_call}
@@ -422,7 +428,6 @@ export default function App() {
         stopSequences={state.openai_payload.stop}
         setStopSequences={v => setPayloadKey('stop', v)}
       />
-
 
       <label for="render-markdown" title="Render assitant messages as markdown">
         Render Markdown
