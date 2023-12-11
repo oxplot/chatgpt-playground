@@ -23,6 +23,10 @@ function patchSchema(s) {
     minimum: -100,
     maximum: 100
   };
+
+  // Remove invalid nullable qualifier.
+
+  s.properties.messages.items.oneOf[1].properties.content.nullable = undefined;
 }
 
 (async function ({ revision = 'master' }) {
