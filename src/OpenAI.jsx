@@ -79,6 +79,11 @@ export const models = [
   },
 
   {
+    id: "gpt-4-0125-preview",
+    promptCost: 0.00001,
+    completionCost: 0.00003,
+  },
+  {
     id: "gpt-4-1106-preview",
     promptCost: 0.00001,
     completionCost: 0.00003,
