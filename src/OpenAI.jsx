@@ -1,4 +1,3 @@
-import validate from "./openai-payload-validate.js";
 import { encode, decode } from "gpt-tokenizer/esm/encoding/cl100k_base"
 
 export const openAICompletionURL = "https://api.openai.com/v1/chat/completions";
@@ -62,6 +61,18 @@ export function createRequest({ apiKey, payload, dataCallback, completionURL = o
 
 export const models = [
   {
+    id: "gpt-4-turbo",
+    alias: "gpt-4-turbo-2024-04-09",
+  },
+  {
+    id: "gpt-4-turbo-preview",
+    alias: "gpt-4-0125-preview",
+  },
+  {
+    id: "gpt-4-vision-preview",
+    alias: "gpt-4-1106-vision-preview",
+  },
+  {
     id: "gpt-4",
     alias: "gpt-4-0613",
   },
@@ -71,69 +82,69 @@ export const models = [
   },
   {
     id: "gpt-3.5-turbo",
-    alias: "gpt-3.5-turbo-0613",
-  },
-  {
-    id: "gpt-3.5-turbo-16k",
-    alias: "gpt-3.5-turbo-16k-0613",
+    alias: "gpt-3.5-turbo-0125",
   },
 
   {
+    id: "gpt-4-turbo-2024-04-09",
+    promptCost: 1e-5,
+    completionCost: 3e-5,
+  },
+  {
     id: "gpt-4-0125-preview",
-    promptCost: 0.00001,
-    completionCost: 0.00003,
+    promptCost: 1e-5,
+    completionCost: 3e-5,
   },
   {
     id: "gpt-4-1106-preview",
-    promptCost: 0.00001,
-    completionCost: 0.00003,
+    promptCost: 1e-5,
+    completionCost: 3e-5,
   },
   {
-    id: "gpt-3.5-turbo-1106",
-    promptCost: 0.000001,
-    completionCost: 0.000002,
+    id: "gpt-4-1106-vision-preview",
+    promptCost: 1e-5,
+    completionCost: 3e-5,
   },
 
 
   {
     id: "gpt-4-0613",
-    promptCost: 0.00003,
-    completionCost: 0.00006,
+    promptCost: 3e-5,
+    completionCost: 6e-5,
   },
   {
     id: "gpt-4-32k-0613",
-    promptCost: 0.00006,
-    completionCost: 0.00012,
+    promptCost: 6e-5,
+    completionCost: 1.2e-4,
   },
   {
-    id: "gpt-3.5-turbo-0613",
-    promptCost: 0.0000015,
-    completionCost: 0.000002,
-  },
-  {
-    id: "gpt-3.5-turbo-16k-0613",
-    promptCost: 0.000003,
-    completionCost: 0.000004,
+    id: "gpt-4-0314",
+    promptCost: 3e-5,
+    completionCost: 6e-5,
   },
 
   {
-    id: "gpt-4-0314",
-    promptCost: 0.00003,
-    completionCost: 0.00006,
+    id: "gpt-3.5-turbo-0125",
+    promptCost: 5e-7,
+    completionCost: 1.5e-6,
+  },
+  {
+    id: "gpt-3.5-turbo-1106",
+    promptCost: 5e-7,
+    completionCost: 1.5e-6,
   },
   {
     id: "gpt-3.5-turbo-0301",
-    promptCost: 0.0000015,
-    completionCost: 0.000002,
+    promptCost: 5e-7,
+    completionCost: 1.5e-6,
   },
-
 
   // Fine tuned and other base models.
 
   {
     prefix: "ft:gpt-3.5-turbo-0613:",
-    promptCost: 0.000012,
-    completionCost: 0.000016,
+    promptCost: 3e-6,
+    completionCost: 6e-6,
   }
 ];
 
@@ -141,10 +152,6 @@ modelNamesSortedByLength = models.map(m => m.id).sort((a, b) => b.length - a.len
 
 export function createValidator() {
   return p => {
-    const a = new Date().getTime();
-    if (!validate(p)) {
-      throw validate.errors;
-    }
     // There must be one and only one system message and it must be the first
     // message.
     if (p.messages.length === 0 || p.messages[0].role !== "system") {
