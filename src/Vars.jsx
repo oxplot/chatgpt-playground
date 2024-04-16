@@ -11,7 +11,7 @@ export function sub(openai_payload, repl) {
     replFn = (_, v) => repl(v);
   } else {
     let vars = repl;
-    replFn = (_, v) => vars[v];
+    replFn = (_, v) => vars[v] || '';
   }
   openai_payload = JSON.parse(JSON.stringify(openai_payload)); // clone
   const pat = /\$\{([a-z0-9_.-]+)\}/ig;
