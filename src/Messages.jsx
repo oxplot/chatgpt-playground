@@ -134,7 +134,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
               {m.content.trim() === '' && !(i === messages.length - 1 && streaming) ?
                 <div style={{ padding: "1em 0" }}>
                   <i>empty markdown content&nbsp;-&nbsp;
-                    turn off markdown (📄) to edit.</i>
+                    turn off "Render Markdown" to edit.</i>
                 </div>
                 :
                 <ReactMarkdown

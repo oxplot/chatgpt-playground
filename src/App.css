@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Jura&display=swap');
-
 * {
   box-sizing: border-box;
-  font-family: 'Jura', sans-serif;
+  font-family: "helvetica neue", arial, helvetica, "lucida grande", sans-serif;
 }
 
 a {
@@ -16,6 +14,20 @@ a:hover {
 
 button {
   margin-top: 0.1em;
+  appearance: initial;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-size: 14px;
+  background-color: #f8f8f8;
+  padding: 0.25em 0.5em;
+}
+
+button:hover {
+  background-color: #f0f0f0;
+}
+
+button:active {
+  background-color: #e8e8e8;
 }
 
 html {
@@ -34,6 +46,13 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+}
+
+select, textarea, input[type="text"] {
+  appearance: initial;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  background-color: #fff;
 }
 
 input,
