@@ -22,7 +22,8 @@
   margin: 0.3em 0 1em;
 }
 
-.logit-bias-add-modal input[type="text"] {
+.logit-bias-set input[type="text"] {
+  margin: 0;
   width: 100%;
 }
 

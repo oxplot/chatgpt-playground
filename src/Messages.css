@@ -52,7 +52,7 @@
 }
 
 .messages>.message>.type {
-  padding: 0.25em 0.25em;
+  padding: 0.25em 0;
 }
 
 .submit-request,

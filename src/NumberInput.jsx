@@ -19,7 +19,7 @@ const NumberInput = ({ number, setNumber, placeholder = "Default" }) => {
   const onInput = useCallback(e => {
     setValue(e.target.value);
     const num = strToNum(e.target.value);
-    if (!isNaN(num)) {
+    if (num === undefined || !isNaN(num)) {
       setNumber(num);
     }
   }, [setNumber]);

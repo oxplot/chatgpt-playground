@@ -9,7 +9,7 @@ export function APIKeyModal({ apiKey, onSave, onCancel }) {
       ref.current.focus();
     }
   }, []);
-  return <Modal onCancel={onCancel} width="320px" contentClassName="api-key-modal">
+  return <Modal onCancel={onCancel} width="450px" contentClassName="api-key-modal">
     <h2>OpenAI API Key</h2>
     <p>
       <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">Get a new key</a> and

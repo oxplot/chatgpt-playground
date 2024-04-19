@@ -14,11 +14,11 @@ export function CompletionURLModal({ completionURL, onSave, onCancel }) {
       ref.current.value = openAICompletionURL;
     }
   }, [ref]);
-  return <Modal onCancel={onCancel} width="320px">
+  return <Modal onCancel={onCancel} width="500px">
     <h2>Chat Completion Endpoint</h2>
     <input
       ref={ref}
-      style={{ width: "100%", marginBottom: "1em" }}
+      style={{ marginBottom: "1em" }}
       type="text"
       placeholder="https://..."
       defaultValue={completionURL} />
