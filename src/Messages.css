@@ -75,6 +75,8 @@
 }
 
 .messages .markdown {
+  margin: 0 -10px;
+  padding: 0 10px;
   overflow-x: scroll;
   background: #fff;
   border-top: 1px solid #ddd;
