@@ -1,8 +1,10 @@
 .var-name {
   border-bottom: 1px solid #ddd;
+  margin: 0 -10px;
+  padding: 0 10px;
   display: inline-block;
-  width: 100%;
-  top: -10px;
+  width: calc(100% + 20px);
+  top: 0;
   background-color: white;
   position: sticky;
   position: -webkit-sticky;
