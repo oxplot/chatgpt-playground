@@ -1,6 +1,5 @@
 * {
   box-sizing: border-box;
-  font-family: "helvetica neue", arial, helvetica, "lucida grande", sans-serif;
 }
 
 a {
@@ -35,6 +34,7 @@ html {
   background-image: url('bg.svg');
   background-size: 35.5px;
   background-position: -5px -5px;
+  font-family: "helvetica neue", arial, helvetica, "lucida grande", sans-serif;
 }
 
 #root {

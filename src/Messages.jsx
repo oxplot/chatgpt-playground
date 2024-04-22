@@ -1,8 +1,11 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import AutoExtendingTextarea from "./AutoExtendingTextarea";
 import "./Messages.css";
-import ReactMarkdown from "react-markdown";
+import Markdown from "react-markdown";
 import remarkGfm from 'remark-gfm';
+
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+import {oneLight} from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 const typeToRole = {
   'user': 'user',
@@ -27,6 +30,24 @@ function msgType(m) {
     return m.role;
   }
 }
+
+const customHighlighterTheme = {
+  ...oneLight,
+  "pre[class*=\"language-\"]": {
+    ...oneLight["pre[class*=\"language-\"]"],
+    margin: "0",
+    padding: "0",
+    borderRadius: "0",
+    backgroundColor: "transparent",
+  },
+  "code[class*=\"language-\"]": {
+    ...oneLight["pre[class*=\"language-\"]"],
+    backgroundColor: "transparent",
+    margin: "0",
+    padding: "0",
+    // fontSize: "inherit",
+  },
+};
 
 export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown }) {
 
@@ -137,10 +158,29 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
                     turn off "Render Markdown" to edit.</i>
                 </div>
                 :
-                <ReactMarkdown
+                <Markdown
                   linkTarget="_blank"
                   remarkPlugins={[remarkGfm]}
                   skipHtml={false}
+                  components={{
+                    code(props) {
+                      const {children, className, node, ...rest} = props
+                      const match = /language-(\w+)/.exec(className || '')
+                      return match ? (
+                        <SyntaxHighlighter
+                          {...rest}
+                          PreTag="div"
+                          children={String(children).replace(/\n$/, '')}
+                          language={match[1]}
+                          style={customHighlighterTheme}
+                        />
+                      ) : (
+                        <code {...rest} className={className}>
+                          {children}
+                        </code>
+                      )
+                    }
+                  }}
                   children={m.content + (i === messages.length - 1 && streaming ? '▏' : '')}
                 />
               }
