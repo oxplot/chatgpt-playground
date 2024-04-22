@@ -86,7 +86,7 @@ function MarkdownRenderer({ content, showCaret, renderMath, renderDiagrams }) {
     let remarkPlugins = [remarkGfm];
     if (renderMath) {
       content = content.replace(/\\[[\]()]/g, '$$');
-      rehypePlugins = [rehypeKatex];
+      rehypePlugins = [[rehypeKatex, { output: "html" }]];
       remarkPlugins = [...remarkPlugins, remarkMath];
     }
     return <Markdown
