@@ -53,6 +53,10 @@ body {
   height: 100%;
 }
 
+input[type="checkbox"], label[for] {
+  cursor: pointer;
+}
+
 input[type="text"],
 input[type="range"],
 input[type="number"],

@@ -322,6 +322,7 @@ export default function App() {
         onCancel={cancel}
         markdown={!!state.markdown}
         renderMath={!!state.render_math}
+        renderDiagrams={!!state.render_diagrams}
       />
     </div>
 
@@ -437,13 +438,22 @@ export default function App() {
 
       {
         state.markdown &&
-        <label htmlFor="render-math">
-          Render Math
-          <input id="render-math" type="checkbox" style={{ float: "right" }}
-            onChange={e => setState(s => ({ ...s, render_math: e.target.checked }))}
-            checked={!!state.render_math}
-          />
-        </label>
+        <>
+          <label htmlFor="render-math">
+            Render Math
+            <input id="render-math" type="checkbox" style={{ float: "right" }}
+              onChange={e => setState(s => ({ ...s, render_math: e.target.checked }))}
+              checked={!!state.render_math}
+            />
+          </label>
+          <label htmlFor="render-diagrams" title="Render Mermaid code blocks as diagrams">
+            Render Diagrams
+            <input id="render-diagrams" type="checkbox" style={{ float: "right" }}
+              onChange={e => setState(s => ({ ...s, render_diagrams: e.target.checked }))}
+              checked={!!state.render_diagrams}
+            />
+          </label>
+        </>
       }
 
       <label>Logit Bias<InfoLabel href="logit_bias" /></label>

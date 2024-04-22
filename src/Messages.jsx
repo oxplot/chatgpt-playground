@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex'
 import remarkMath from 'remark-math'
 import 'katex/dist/katex.min.css'
+import Mermaid from "./Mermaid";
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -52,26 +53,33 @@ const customHighlighterTheme = {
   },
 };
 
-const markdownComponents = {
-  code({ children, className, node, ...rest }) {
-    const match = /language-(\w+)/.exec(className || '')
-    return match ? (
-      <SyntaxHighlighter
+
+function MarkdownRenderer({ content, showCaret, renderMath, renderDiagrams }) {
+
+  const markdownComponents = useMemo(() => ({
+    code({ children, className, node, ...rest }) {
+      const match = /language-(\w+)/.exec(className || '')
+
+      if (!match) {
+        return <code {...rest} className={className}>
+          {children}
+        </code>;
+      }
+
+      if (renderDiagrams && match[1] === 'mermaid') {
+        return <Mermaid chart={String(children)} />;
+      }
+
+      return <SyntaxHighlighter
         {...rest}
         PreTag="div"
         children={String(children).replace(/\n$/, '')}
         language={match[1]}
         style={customHighlighterTheme}
-      />
-    ) : (
-      <code {...rest} className={className}>
-        {children}
-      </code>
-    )
-  }
-};
+      />;
+    }
+  }), [renderDiagrams]);
 
-function MarkdownRenderer({ content, showCaret, renderMath }) {
   // Markdown parsing is expensive, so we memoize the result.
   return useMemo(() => {
     let rehypePlugins = [];
@@ -89,10 +97,10 @@ function MarkdownRenderer({ content, showCaret, renderMath }) {
       components={markdownComponents}
       children={content + (showCaret ? '▏' : '')}
     />
-  }, [content, showCaret, renderMath]);
+  }, [content, showCaret, renderMath, renderDiagrams]);
 }
 
-export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown, renderMath }) {
+export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown, renderMath, renderDiagrams }) {
 
   // Auto scrolling behavior
 
@@ -201,7 +209,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
                     turn off "Render Markdown" to edit.</i>
                 </div>
                 :
-                <MarkdownRenderer key={i} renderMath={renderMath} content={m.content} showCaret={i === messages.length - 1 && streaming} />
+                <MarkdownRenderer key={i} renderDiagrams={renderDiagrams} renderMath={renderMath} content={m.content} showCaret={i === messages.length - 1 && streaming} />
               }
             </div>
             :
