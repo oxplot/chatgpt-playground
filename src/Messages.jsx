@@ -1,11 +1,14 @@
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import AutoExtendingTextarea from "./AutoExtendingTextarea";
 import "./Messages.css";
 import Markdown from "react-markdown";
 import remarkGfm from 'remark-gfm';
+import rehypeKatex from 'rehype-katex'
+import remarkMath from 'remark-math'
+import 'katex/dist/katex.min.css'
 
-import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
-import {oneLight} from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 const typeToRole = {
   'user': 'user',
@@ -49,7 +52,47 @@ const customHighlighterTheme = {
   },
 };
 
-export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown }) {
+const markdownComponents = {
+  code({ children, className, node, ...rest }) {
+    const match = /language-(\w+)/.exec(className || '')
+    return match ? (
+      <SyntaxHighlighter
+        {...rest}
+        PreTag="div"
+        children={String(children).replace(/\n$/, '')}
+        language={match[1]}
+        style={customHighlighterTheme}
+      />
+    ) : (
+      <code {...rest} className={className}>
+        {children}
+      </code>
+    )
+  }
+};
+
+function MarkdownRenderer({ content, showCaret, renderMath }) {
+  // Markdown parsing is expensive, so we memoize the result.
+  return useMemo(() => {
+    let rehypePlugins = [];
+    let remarkPlugins = [remarkGfm];
+    if (renderMath) {
+      content = content.replace(/\\[[\]()]/g, '$$');
+      rehypePlugins = [rehypeKatex];
+      remarkPlugins = [...remarkPlugins, remarkMath];
+    }
+    return <Markdown
+      linkTarget="_blank"
+      remarkPlugins={remarkPlugins}
+      skipHtml={false}
+      rehypePlugins={rehypePlugins}
+      components={markdownComponents}
+      children={content + (showCaret ? '▏' : '')}
+    />
+  }, [content, showCaret, renderMath]);
+}
+
+export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown, renderMath }) {
 
   // Auto scrolling behavior
 
@@ -151,38 +194,14 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
             />
             : ''}
           {markdown && msgType(m) === 'assistant' ?
-            <div class="markdown" ref={i === messages.length - 1 ? lastMsgContentRef : undefined}>
+            <div className="markdown" ref={i === messages.length - 1 ? lastMsgContentRef : undefined}>
               {m.content.trim() === '' && !(i === messages.length - 1 && streaming) ?
                 <div style={{ padding: "1em 0" }}>
                   <i>empty markdown content&nbsp;-&nbsp;
                     turn off "Render Markdown" to edit.</i>
                 </div>
                 :
-                <Markdown
-                  linkTarget="_blank"
-                  remarkPlugins={[remarkGfm]}
-                  skipHtml={false}
-                  components={{
-                    code(props) {
-                      const {children, className, node, ...rest} = props
-                      const match = /language-(\w+)/.exec(className || '')
-                      return match ? (
-                        <SyntaxHighlighter
-                          {...rest}
-                          PreTag="div"
-                          children={String(children).replace(/\n$/, '')}
-                          language={match[1]}
-                          style={customHighlighterTheme}
-                        />
-                      ) : (
-                        <code {...rest} className={className}>
-                          {children}
-                        </code>
-                      )
-                    }
-                  }}
-                  children={m.content + (i === messages.length - 1 && streaming ? '▏' : '')}
-                />
+                <MarkdownRenderer key={i} renderMath={renderMath} content={m.content} showCaret={i === messages.length - 1 && streaming} />
               }
             </div>
             :

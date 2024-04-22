@@ -321,6 +321,7 @@ export default function App() {
         onSubmit={submit}
         onCancel={cancel}
         markdown={!!state.markdown}
+        renderMath={!!state.render_math}
       />
     </div>
 
@@ -426,13 +427,24 @@ export default function App() {
         setStopSequences={v => setPayloadKey('stop', v)}
       />
 
-      <label for="render-markdown" title="Render assitant messages as markdown">
+      <label htmlFor="render-markdown" title="Render assitant messages as markdown">
         Render Markdown
         <input id="render-markdown" type="checkbox" style={{ float: "right" }}
           onChange={e => setState(s => ({ ...s, markdown: e.target.checked }))}
           checked={!!state.markdown}
         />
       </label>
+
+      {
+        state.markdown &&
+        <label htmlFor="render-math">
+          Render Math
+          <input id="render-math" type="checkbox" style={{ float: "right" }}
+            onChange={e => setState(s => ({ ...s, render_math: e.target.checked }))}
+            checked={!!state.render_math}
+          />
+        </label>
+      }
 
       <label>Logit Bias<InfoLabel href="logit_bias" /></label>
       <LogitBiasSet

@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build": "mkdir -p out && cp -f favicon.png index.html out && NODE_ENV=production npx esbuild src/main.jsx --minify --bundle --outfile=out/main.js --jsx=automatic --sourcemap=external --loader:.svg=file",
-    "dev": "mkdir -p out && cp -f favicon.png index.html out && npx esbuild src/main.jsx --bundle --outfile=out/main.js --jsx=automatic --sourcemap=inline --loader:.svg=file --watch --servedir=out"
+    "build": "mkdir -p out && cp -f favicon.png index.html out && NODE_ENV=production npx esbuild src/main.jsx --minify --bundle --outfile=out/main.js --jsx=automatic --sourcemap=external --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file",
+    "dev": "mkdir -p out && cp -f favicon.png index.html out && npx esbuild src/main.jsx --bundle --outfile=out/main.js --jsx=automatic --sourcemap=inline --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --watch --servedir=out"
   },
   "dependencies": {
     "gpt-tokenizer": "^2.1.1",
@@ -10,7 +10,9 @@
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "react-syntax-highlighter": "^15.5.0",
-    "remark-gfm": "^4.0.0"
+    "rehype-katex": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.19.9"
