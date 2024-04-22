@@ -43,6 +43,7 @@ html {
 }
 
 #root,
+#app-container,
 html,
 body {
   font-size: 14px;
@@ -165,9 +166,20 @@ code {
 }
 
 .app.column.conversation {
+  position: relative;
   border-left: 1px solid #ddd;
   border-right: 1px solid #ddd;
 }
+
+.widescreen > .app.column.knobs,
+.widescreen > .app.column.system {
+  display: none;
+}
+
+.widescreen > .app.column.conversation {
+  width: 100%;
+}
+
 
 .knobs label {
   display: block;
@@ -187,4 +199,41 @@ code {
 
 .cost-item::before {
   content: "~$ ";
+}
+
+label[for="wide-screen"] {
+  -webkit-user-select: none;
+  user-select: none;
+  line-height: 1em;
+  border: 1px solid #999;
+  border-radius: 2px;
+  color: #999;
+  vertical-align: center;
+  font-weight: normal;
+  position: fixed;
+  right: 210px;
+  top: 10px;
+  background-color: white;
+}
+
+label[for="wide-screen"]:hover {
+  color:  #000;
+  border: 1px solid #000;
+}
+
+label[for="wide-screen"] > input[type="checkbox"] {
+  display: none;
+}
+
+.widescreen label[for="wide-screen"] {
+  right: 10px;
+}
+
+label[for="wide-screen"]::before {
+  content: "⇠⇢";
+}
+
+.widescreen label[for="wide-screen"]::before {
+  content: "⇢⇠";
+  right: 10px;
 }

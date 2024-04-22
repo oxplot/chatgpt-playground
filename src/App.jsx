@@ -96,6 +96,7 @@ export default function App() {
     vars: {},
   };
 
+  const [widescreen, setWidescreen] = useState(false);
   const [state, unvalidatedSetState] = useState(defaultState);
   const renderedPayload = state.replace_variables ? Vars.sub(state.openai_payload, state.vars) : state.openai_payload;
 
@@ -251,7 +252,7 @@ export default function App() {
     document.title = state.title || "ChatGPT Playground";
   }, [state.title]);
 
-  return <>
+  return <div id="app-container" className={(widescreen ? 'widescreen' : '')}>
     <div className="app column system">
 
       <AutoExtendingTextarea
@@ -312,7 +313,12 @@ export default function App() {
     </div >
 
     <div className="app column conversation">
-      <h2>Messages<InfoLabel href="messages" /></h2>
+      <label for="wide-screen" title="Expand messages to fill the screen">
+        <input id="wide-screen" type="checkbox" onChange={e => setWidescreen(e.target.checked)} />
+      </label>
+      <h2>
+        Messages<InfoLabel href="messages" />
+      </h2>
       <Messages
         messages={state.openai_payload.messages.slice(1)}
         setMessages={setMessages}
@@ -485,5 +491,5 @@ export default function App() {
     }
 
     <WindowHash state={state} setState={setState} defaultState={defaultState} loadState={loadState} />
-  </>
+  </div>
 }
