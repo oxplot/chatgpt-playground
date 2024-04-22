@@ -74,6 +74,19 @@
   border: 1px solid #ddd;
 }
 
+.messages .markdown table {
+  margin: 1em 0;
+}
+
+.messages .markdown td,
+.messages .markdown th {
+  padding: 0.3em 0.5em;
+}
+
+.messages .markdown tbody tr:nth-child(even) {
+  background-color: rgb(246,246,246);
+}
+
 .messages .markdown {
   margin: 0 -10px;
   padding: 0 10px;
