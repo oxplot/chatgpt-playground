@@ -54,9 +54,20 @@ mermaid.initialize({
   fontSize: 14,
 });
 
+
 export default function MermaidChart({ chart }) {
   const mermaidRef = useRef(null);
   const [id] = useState(`mermaidChar${Math.random().toString(10).substring(2)}`);
+  const [rerender, setRerender] = useState(0);
+
+  useEffect(() => {
+    let resizeObserver;
+    if (mermaidRef && mermaidRef.current) {
+      resizeObserver = new ResizeObserver(() => { setRerender(v => v + 1); });
+      resizeObserver.observe(mermaidRef.current);
+    }
+    return () => resizeObserver?.disconnect();
+  }, [mermaidRef]);
 
   useEffect(() => {
     if (mermaidRef && mermaidRef.current) {
@@ -71,7 +82,7 @@ export default function MermaidChart({ chart }) {
       }
       fn();
     }
-  }, [chart, mermaidRef, id]);
+  }, [chart, mermaidRef, id, rerender]);
 
   return <div ref={mermaidRef}></div>
 };
