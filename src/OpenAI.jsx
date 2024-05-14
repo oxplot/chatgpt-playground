@@ -61,6 +61,10 @@ export function createRequest({ apiKey, payload, dataCallback, completionURL = o
 
 export const models = [
   {
+    id: "gpt-4o",
+    alias: "gpt-4o-2024-05-13",
+  },
+  {
     id: "gpt-4-turbo",
     alias: "gpt-4-turbo-2024-04-09",
   },
@@ -85,6 +89,11 @@ export const models = [
     alias: "gpt-3.5-turbo-0125",
   },
 
+  {
+    id: "gpt-4o-2024-05-13",
+    promptCost: 1e-5 / 2,
+    completionCost: 3e-5 / 2,
+  },
   {
     id: "gpt-4-turbo-2024-04-09",
     promptCost: 1e-5,

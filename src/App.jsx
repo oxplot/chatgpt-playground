@@ -55,7 +55,7 @@ const validateState = (() => {
 })();
 
 const baseDefaultSetting = {
-  model: "gpt-4-turbo",
+  model: "gpt-4o",
   temperature: 0.7,
   top_p: 1,
 };
