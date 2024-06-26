@@ -54,7 +54,8 @@ body {
   height: 100%;
 }
 
-input[type="checkbox"], label[for] {
+input[type="checkbox"],
+label[for] {
   cursor: pointer;
 }
 
@@ -69,6 +70,7 @@ textarea,
   background-color: #fff;
   padding: 0.3em 10px;
   font-size: 100%;
+  font-family: inherit;
   line-height: 1.5em;
   margin: 0 -10px;
   width: calc(100% + 20px);
@@ -171,12 +173,12 @@ code {
   border-right: 1px solid #ddd;
 }
 
-.widescreen > .app.column.knobs,
-.widescreen > .app.column.system {
+.widescreen>.app.column.knobs,
+.widescreen>.app.column.system {
   display: none;
 }
 
-.widescreen > .app.column.conversation {
+.widescreen>.app.column.conversation {
   width: 100%;
 }
 
@@ -217,11 +219,11 @@ label[for="wide-screen"] {
 }
 
 label[for="wide-screen"]:hover {
-  color:  #000;
+  color: #000;
   border: 1px solid #000;
 }
 
-label[for="wide-screen"] > input[type="checkbox"] {
+label[for="wide-screen"]>input[type="checkbox"] {
   display: none;
 }
 
