@@ -65,6 +65,10 @@ export const models = [
     alias: "gpt-4o-2024-05-13",
   },
   {
+    id: "gpt-4o-mini",
+    alias: "gpt-4o-mini-2024-07-18",
+  },
+  {
     id: "gpt-4-turbo",
     alias: "gpt-4-turbo-2024-04-09",
   },
@@ -89,6 +93,11 @@ export const models = [
     alias: "gpt-3.5-turbo-0125",
   },
 
+  {
+    id: "gpt-4o-mini-2024-07-18",
+    promptCost: 0.15 / 1e6,
+    completionCost: 0.6 / 1e6,
+  },
   {
     id: "gpt-4o-2024-05-13",
     promptCost: 1e-5 / 2,
