@@ -2,29 +2,56 @@ import { encode, decode } from "gpt-tokenizer/esm/encoding/cl100k_base"
 
 export const openAICompletionURL = "https://api.openai.com/v1/chat/completions";
 
+async function getResponse({ url, apiKey, payload, signal }) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + apiKey,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ ...payload, n: 1 }),
+    signal: signal,
+  });
+
+  if (!response.ok) {
+    var jsonErr;
+    try {
+      jsonErr = await response.json();
+    } catch (e) { }
+    if (jsonErr) {
+      throw 'APIError: ' + (jsonErr.error.message || jsonErr.error.code);
+    }
+    throw `HTTPError: ${response.status}`;
+  }
+  return response;
+}
+
 export function createRequest({ apiKey, payload, dataCallback, completionURL = openAICompletionURL }) {
+  payload = JSON.parse(JSON.stringify(payload));
+  // Remove system message if empty.
+  if (payload.messages[0].role === "system" && !payload.messages[0].content) {
+    payload.messages.shift();
+  }
   const abortController = new AbortController();
+
+  if (payload.stream !== true) {
+    return {
+      send: async () => {
+        const response = await getResponse({ url: completionURL, apiKey, payload, signal: abortController.signal });
+        const data = await response.json();
+        if (data.error) {
+          throw `${data.error.type}: ${data.error.message}`;
+        }
+        await dataCallback(data.choices[0]);
+        await dataCallback();
+      },
+      cancel: () => abortController.abort(),
+    }
+  }
+
   return {
     send: async () => {
-      const response = await fetch(completionURL, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + apiKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ ...payload, stream: true, n: 1 }),
-        signal: abortController.signal,
-      });
-      if (!response.ok) {
-        var jsonErr;
-        try {
-          jsonErr = await response.json();
-        } catch (e) { }
-        if (jsonErr) {
-          throw 'APIError: ' + (jsonErr.error.message || jsonErr.error.code);
-        }
-        throw `HTTPError: ${response.status}`;
-      }
+      const response = await getResponse({ url: completionURL, apiKey, payload, signal: abortController.signal });
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
@@ -69,6 +96,14 @@ export const models = [
     alias: "gpt-4o-mini-2024-07-18",
   },
   {
+    id: "o1-preview",
+    alias: "o1-preview-2024-09-12",
+  },
+  {
+    id: "o1-mini",
+    alias: "o1-mini-2024-09-12",
+  },
+  {
     id: "gpt-4-turbo",
     alias: "gpt-4-turbo-2024-04-09",
   },
@@ -102,6 +137,16 @@ export const models = [
     id: "gpt-4o-2024-05-13",
     promptCost: 1e-5 / 2,
     completionCost: 3e-5 / 2,
+  },
+  {
+    id: "o1-preview-2024-09-12",
+    promptCost: 15 / 1e6,
+    completionCost: 60 / 1e6,
+  },
+  {
+    id: "o1-mini-2024-09-12",
+    promptCost: (15 / 1e6) * 0.2,
+    completionCost: (60 / 1e6) * 0.2,
   },
   {
     id: "gpt-4-turbo-2024-04-09",

@@ -58,6 +58,7 @@ const baseDefaultSetting = {
   model: "gpt-4o",
   temperature: 0.7,
   top_p: 1,
+  stream: true,
 };
 
 export default function App() {
@@ -98,6 +99,7 @@ export default function App() {
 
   const [widescreen, setWidescreen] = useState(false);
   const [state, unvalidatedSetState] = useState(defaultState);
+  state.openai_payload.stream = state.openai_payload.stream ?? true;
   const renderedPayload = state.replace_variables ? Vars.sub(state.openai_payload, state.vars) : state.openai_payload;
 
   // Sets the app state only after validation succeeds.
@@ -159,38 +161,37 @@ export default function App() {
     if (!data) {
       return;
     }
+    const delta = data.delta || data.message;
+    if (delta) {
+      setPayloadKey('messages', msgs => {
+        if (delta.role) {
+          const m = { role: delta.role, content: '' };
+          if (delta.function_call) {
+            m.function_call = {
+              name: delta.function_call.name,
+              arguments: delta.function_call.arguments,
+            }
+          } else if (delta.content) {
+            m.content = delta.content;
+          }
+          return [...msgs, m];
+        } else if (delta.function_call || delta.content) {
+          const m = JSON.parse(JSON.stringify(msgs[msgs.length - 1]));
+          if (delta.function_call) {
+            m.function_call.arguments += delta.function_call.arguments;
+          } else if (delta.content) {
+            m.content += delta.content;
+          }
+          return [...msgs.slice(0, msgs.length - 1), m];
+        } else {
+          return msgs;
+        }
+      });
+    }
     if (data.finish_reason && data.finish_reason != "stop" && data.finish_reason != "function_call") {
       setStopReason("stopped reason: " + data.finish_reason);
       return
     }
-    const delta = data.delta;
-    if (!delta) {
-      return;
-    }
-    setPayloadKey('messages', msgs => {
-      if (delta.role) {
-        const m = { role: delta.role, content: '' };
-        if (delta.function_call) {
-          m.function_call = {
-            name: delta.function_call.name,
-            arguments: delta.function_call.arguments,
-          }
-        } else if (delta.content) {
-          m.content = delta.content;
-        }
-        return [...msgs, m];
-      } else if (delta.function_call || delta.content) {
-        const m = JSON.parse(JSON.stringify(msgs[msgs.length - 1]));
-        if (delta.function_call) {
-          m.function_call.arguments += delta.function_call.arguments;
-        } else if (delta.content) {
-          m.content += delta.content;
-        }
-        return [...msgs.slice(0, msgs.length - 1), m];
-      } else {
-        return msgs;
-      }
-    });
   });
 
   const [apiKey, setAPIKey] = useLocalStorage(apiKeyLocalStorageKey, "");
@@ -313,7 +314,7 @@ export default function App() {
     </div >
 
     <div className="app column conversation">
-      <label for="wide-screen" title="Expand messages to fill the screen">
+      <label htmlFor="wide-screen" title="Expand messages to fill the screen">
         <input id="wide-screen" type="checkbox" onChange={e => setWidescreen(e.target.checked)} />
       </label>
       <h2>
@@ -365,6 +366,7 @@ export default function App() {
               max_tokens: state.openai_payload.max_tokens,
               presence_penalty: state.openai_payload.presence_penalty,
               frequency_penalty: state.openai_payload.frequency_penalty,
+              stream: state.openai_payload.stream,
               stop: state.openai_payload.stop,
             }));
             e.target.classList.add('done');
@@ -434,7 +436,15 @@ export default function App() {
         setStopSequences={v => setPayloadKey('stop', v)}
       />
 
-      <label htmlFor="render-markdown" title="Render assitant messages as markdown">
+      <label htmlFor="stream" title="Stream the response">
+        Stream
+        <input id="stream" type="checkbox" style={{ float: "right" }}
+          onChange={e => setPayloadKey('stream', e.target.checked)}
+          checked={state.openai_payload.stream}
+        />
+      </label>
+
+      <label htmlFor="render-markdown" title="Render assistant messages as markdown">
         Render Markdown
         <input id="render-markdown" type="checkbox" style={{ float: "right" }}
           onChange={e => setState(s => ({ ...s, markdown: e.target.checked }))}
