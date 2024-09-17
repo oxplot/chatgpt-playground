@@ -140,13 +140,13 @@ export const models = [
   },
   {
     id: "o1-preview-2024-09-12",
-    promptCost: 15 / 1e6,
-    completionCost: 60 / 1e6,
+    promptCost: (15 / 1e6),
+    completionCost: (60 / 1e6) * 10, // Hidden cost can be 10x higher than actual user visible cost.
   },
   {
     id: "o1-mini-2024-09-12",
     promptCost: (15 / 1e6) * 0.2,
-    completionCost: (60 / 1e6) * 0.2,
+    completionCost: ((60 / 1e6) * 0.2) * 10, // Hidden cost can be 10x higher than actual user visible cost.
   },
   {
     id: "gpt-4-turbo-2024-04-09",
