@@ -31,3 +31,9 @@ export function codeRunnerFuncDefined(func_defs) {
 export function isCodeRunnerFunctionCallMessage(msg) {
   return msg.function_call?.name === codeRunnerFunctionName;
 }
+
+
+// Run python code
+export async function runPython(pythonCode) {
+  return "python code running is not implemented";
+}

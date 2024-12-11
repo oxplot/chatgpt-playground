@@ -10,7 +10,7 @@ import Mermaid from "./Mermaid";
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { isCodeRunnerFunctionCallMessage } from "./CodeRunner";
+import { codeRunnerFunctionName, isCodeRunnerFunctionCallMessage, runPython } from "./CodeRunner";
 
 const typeToRole = {
   'user': 'user',
@@ -182,8 +182,9 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
     return () => document.removeEventListener('keydown', l);
   }, [streaming, onCancel, onSubmit]);
 
-  const runCode = useCallback(() => {
+  const runCode = useCallback((code) => {
     var cancel = () => {
+      return; // Not supported currently
       document.addEventListener('keydown', escapeHandler, false);
       setRunningCode(null);
       // INTERRUPT
@@ -195,9 +196,23 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
       }
     };
     setRunningCode({ cancel });
-    setTimeout(() => {
-      cancel();
-    }, 3000);
+    setTimeout(async () => {
+      let result;
+      try {
+        result = new String(await runPython(code));
+      } catch (e) {
+        result = e.toString();
+      }
+      const newMsg = {
+        role: 'function',
+        name: codeRunnerFunctionName,
+        content: result,
+      };
+      setMessages([...messages, newMsg]);
+      onSubmit();
+      document.addEventListener('keydown', escapeHandler, false);
+      setRunningCode(null);
+    }, 0);
     document.addEventListener('keydown', escapeHandler, false);
   }, [setRunningCode, messages, setMessages, onSubmit]);
 
@@ -210,7 +225,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
       isCodeRunnerFunctionCallMessage(messages[messages.length - 1])
     ) {
       // If last streamed message was a function call, run the code.
-      runCode();
+      runCode(messages[messages.length - 1].function_call.arguments.code);
     }
   }, [prevStreamState, streaming, stopReason, messages]);
 
