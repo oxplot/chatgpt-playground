@@ -186,7 +186,20 @@ export default function App() {
         } else if (delta.function_call || delta.content) {
           const m = JSON.parse(JSON.stringify(msgs[msgs.length - 1]));
           if (delta.function_call) {
-            m.function_call.arguments += delta.function_call?.arguments || '';
+            if (m.content) {
+              // Weird case where the assistant messages switches to function
+              // call. We are going to treat this as a new message.
+              return [...msgs, {
+                role: m.role,
+                content: '',
+                function_call: {
+                  name: delta.function_call.name,
+                  arguments: delta.function_call.arguments,
+                },
+              }];
+            } else {
+              m.function_call.arguments += delta.function_call.arguments;
+            }
           } else if (delta.content) {
             m.content += delta.content;
           }
