@@ -211,7 +211,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
     <div className="messages">
       {messages.map((m, i) =>
         <div className="message" key={i} data-type={msgType(m)}>
-          {streaming && i === messages.length - 1 ? <label className="type" /> : <>
+          {(runningCode || streaming) && i === messages.length - 1 ? <label className="type" /> : <>
             <label className="type" onClick={() => switchType(i)} />
             <span className="delete" onClick={() => deleteMsg(i)} />
           </>}

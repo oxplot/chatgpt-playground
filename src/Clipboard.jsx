@@ -16,7 +16,7 @@ function copyToClipboard(text) {
   }
 };
 
-export function LoadButton({ children = "Load", setAppState }) {
+export function LoadButton({ children = "Load", enabled = true, setAppState }) {
   const inputRef = useRef(null);
   const buttonRef = useRef(null);
   const [loadStarted, setLoadStarted] = useState(false);
@@ -50,6 +50,7 @@ export function LoadButton({ children = "Load", setAppState }) {
   return (
     <>
       <button
+        disabled={!enabled}
         ref={buttonRef}
         onClick={() => setLoadStarted(true)}
         style={{ display: loadStarted ? "none" : "" }}

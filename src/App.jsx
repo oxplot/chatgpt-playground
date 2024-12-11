@@ -263,6 +263,8 @@ export default function App() {
 
   const codeRunnerActive = useMemo(() => codeRunnerFuncDefined(state.openai_payload.functions), [state.openai_payload.functions]);
 
+  const streaming = Boolean(openAIRequest);
+
   return <div id="app-container" className={(widescreen ? 'widescreen' : '')}>
     <div className="app column system">
 
@@ -276,7 +278,7 @@ export default function App() {
       <div className="saveBox">
         <button onClick={() => open(window.location.href.split('#')[0])}>New</button>
         &nbsp;|&nbsp;
-        <LoadButton setAppState={loadState}>Load from</LoadButton>
+        <LoadButton enabled={!streaming} setAppState={loadState}>Load from</LoadButton>
         &nbsp;/&nbsp;
         <SaveButton appState={state}>Save to</SaveButton>
         &nbsp;/&nbsp;
@@ -350,7 +352,7 @@ export default function App() {
       <Messages
         messages={state.openai_payload.messages.slice(1)}
         setMessages={setMessages}
-        streaming={Boolean(openAIRequest)}
+        streaming={streaming}
         stopReason={stopReason}
         onSubmit={submit}
         onCancel={cancel}
