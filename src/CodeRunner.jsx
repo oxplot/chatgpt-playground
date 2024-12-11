@@ -14,7 +14,7 @@ export function mergeCodeRunnerFuncDef(func_defs, remove) {
         properties: {
           code: {
             type: "string",
-            description: "Module body. Must print output into stdout."
+            description: "Module body. MUST print the result to standard output using print."
           }
         },
         additionalProperties: false
@@ -30,7 +30,7 @@ export function codeRunnerFuncDefined(func_defs) {
 
 export function getCodeRunnerFunctionCallCode(msg) {
   const fnCall = msg.function_call;
-  if (!fnCall?.name === codeRunnerFunctionName) return;
+  if (fnCall?.name !== codeRunnerFunctionName) return;
   try {
     return JSON.parse(fnCall.arguments).code;
   } catch (e) {
@@ -38,22 +38,52 @@ export function getCodeRunnerFunctionCallCode(msg) {
   }
 }
 
-// Run python code
-export function runPython(script, onDone) {
-  const pyodideWorker = new Worker("./pyodide-worker.js");
-  let interrupted = false;
+// Maintain a single worker for all python runs.
+// If a run is interrupted, terminate the worker and create a new one.
 
-  pyodideWorker.onmessage = (event) => {
-    if (interrupted) return;
-    const { output } = event.data;
-    onDone(output);
+let pyodideWorker = newPyodideWorker();
+
+function newPyodideWorker() {
+  const worker = new Worker("./pyodide-worker.js");
+  let callbacks = [];
+
+  const w = {
+    terminated: false,
+    add: ({ script, onDone }) => {
+      callbacks.push(onDone);
+      worker.postMessage({ script });
+    }
   };
-  pyodideWorker.postMessage({ script });
 
+  w.terminate = (error) => {
+    if (w.terminated) return;
+    w.terminated = true;
+    worker.terminate();
+    callbacks.forEach(c => c({ output: `TERMINATED${error ? ' - ' + error : ''}` }));
+  };
+
+  worker.onmessage = (event) => {
+    if (w.terminated) return;
+    if (callbacks.length === 0) {
+      // This should not happen.
+      w.terminate();
+      return;
+    }
+    callbacks.shift()(event.data.output);
+  };
+
+  worker.onerror = (e) => { w.terminate(new String(e)); };
+
+  return w;
+}
+
+export function runPython(script, onDone) {
+  if (pyodideWorker.terminated) {
+    pyodideWorker = newPyodideWorker();
+  }
+  pyodideWorker.add({ script, onDone });
   return {
     terminate: () => {
-      if (interrupted) return;
-      interrupted = true;
       pyodideWorker.terminate();
     },
   }

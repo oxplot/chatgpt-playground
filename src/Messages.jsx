@@ -54,7 +54,7 @@ const customHighlighterTheme = {
   },
 };
 
-function getCodeRunButton(m) {
+function getCodeRunButton({ m, runCode }) {
   const code = getCodeRunnerFunctionCallCode(m);
   if (!code) {
     return null;
@@ -225,7 +225,7 @@ export function Messages({ messages, setMessages, triggerSubmit, onSubmit, onCan
 
     setRunningCode({ cancel });
     document.addEventListener('keydown', escapeHandler, false);
-  }, [setRunningCode, messages, setMessages, onSubmit]);
+  }, [setRunningCode, messages, setMessages, onSubmit, triggerSubmit]);
 
   useEffect(() => {
     if (
@@ -249,7 +249,7 @@ export function Messages({ messages, setMessages, triggerSubmit, onSubmit, onCan
           {(runningCode || streaming) && i === messages.length - 1 ? <label className="type" /> : <>
             <label className="type" onClick={() => switchType(i)} />
             <span className="delete" onClick={() => deleteMsg(i)} />
-            {i === messages.length - 1 ? getCodeRunButton(m) : null}
+            {i === messages.length - 1 ? getCodeRunButton({ m, runCode }) : null}
           </>}
           {msgType(m) === 'function_result' || msgType(m) === 'function_call' ?
             <input

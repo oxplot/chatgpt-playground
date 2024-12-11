@@ -186,7 +186,7 @@ export default function App() {
         } else if (delta.function_call || delta.content) {
           const m = JSON.parse(JSON.stringify(msgs[msgs.length - 1]));
           if (delta.function_call) {
-            m.function_call.arguments += delta.function_call.arguments;
+            m.function_call.arguments += delta.function_call?.arguments || '';
           } else if (delta.content) {
             m.content += delta.content;
           }
