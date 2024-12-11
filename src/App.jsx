@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LoadButton, SaveButton, CopyLinkButton } from "./Clipboard.jsx";
 import * as Vars from "./Vars.jsx";
 import { Messages } from "./Messages.jsx";
@@ -16,6 +16,7 @@ import WindowHash from './WindowHash.jsx';
 import LogitBiasSet from './LogitBias.jsx';
 import { CompletionURLModal } from './CompletionURLModal.jsx';
 import { ResponseFormatSelector } from './ResponseFormatSelector.jsx';
+import { codeRunnerFuncDefined, codeRunnerFunctionName, mergeCodeRunnerFuncDef } from './CodeRunner.jsx';
 
 // Converts the ad-hoc state format of pre-react version to official OpenAI's
 // payload format.
@@ -100,7 +101,14 @@ export default function App() {
   const [widescreen, setWidescreen] = useState(false);
   const [state, unvalidatedSetState] = useState(defaultState);
   state.openai_payload.stream = state.openai_payload.stream ?? true;
-  const renderedPayload = state.replace_variables ? Vars.sub(state.openai_payload, state.vars) : state.openai_payload;
+
+  let renderedPayload = useMemo(() => {
+    let ret = state.openai_payload;
+    if (state.replace_variables) {
+      ret = Vars.sub(ret, state.vars);
+    }
+    return ret;
+  }, [state.openai_payload, state.replace_variables, state.vars])
 
   // Sets the app state only after validation succeeds.
   const setState = useCallback(v => {
@@ -283,7 +291,23 @@ export default function App() {
         />
       </div>
 
-      <h2>Functions<InfoLabel href="functions" /></h2>
+      <h2>
+        Functions<InfoLabel href="functions" />
+        <span style={{ float: "right", fontSize: "1rem", fontWeight: "normal" }}>
+          <label htmlFor="enable-code-runner"> Code Runner</label>
+          <input
+            id="enable-code-runner"
+            type="checkbox"
+            title="Enable"
+            onChange={e => setPayloadKey('functions', fs => mergeCodeRunnerFuncDef(fs, !e.target.checked))}
+            checked={codeRunnerFuncDefined(state.openai_payload.functions)}
+            style={{ marginLeft: "0.5em" }}
+          /> <span style={{ color: "#ccc", marginLeft: "0.5em", marginRight: "0.5em" }}>|</span>
+          <a
+            onClick={() => alert("Defines a function to use python environment to run code on behalf of the LLM.")}
+            style={{ cursor: "pointer", textDecoration: "none", verticalAlign: "middle" }}>ⓘ</a>
+        </span>
+      </h2>
       <p><i>Not all models support functions.</i></p>
       <div>
         <Functions
@@ -293,13 +317,14 @@ export default function App() {
       </div>
 
       <h2>
-        Variables
+        <label htmlFor="enable-variables">Variables</label>
         <input
+          id="enable-variables"
           type="checkbox"
           title="Enable"
           onChange={e => setState(s => ({ ...s, replace_variables: e.target.checked }))}
           checked={state.replace_variables}
-          style={{ float: "right" }}
+          style={{ marginLeft: "1em", verticalAlign: "middle" }}
         />
       </h2>
       <p>
