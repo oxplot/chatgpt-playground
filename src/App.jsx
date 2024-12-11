@@ -173,16 +173,22 @@ export default function App() {
     if (delta) {
       setPayloadKey('messages', msgs => {
         if (delta.role) {
-          const m = { role: delta.role, content: '' };
-          if (delta.function_call) {
-            m.function_call = {
-              name: delta.function_call.name,
-              arguments: delta.function_call.arguments,
-            }
-          } else if (delta.content) {
-            m.content = delta.content;
+          // Weird case where the response has both content and function call.
+          const newMsgs = [];
+          if (delta.content || (!delta.content && !delta.function_call)) {
+            newMsgs.push({ role: delta.role, content: delta.content });
           }
-          return [...msgs, m];
+          if (delta.function_call) {
+            newMsgs.push({
+              role: delta.role,
+              content: '',
+              function_call: {
+                name: delta.function_call.name,
+                arguments: delta.function_call.arguments,
+              },
+            });
+          }
+          return [...msgs, ...newMsgs];
         } else if (delta.function_call || delta.content) {
           const m = JSON.parse(JSON.stringify(msgs[msgs.length - 1]));
           if (delta.function_call) {
