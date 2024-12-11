@@ -28,12 +28,33 @@ export function codeRunnerFuncDefined(func_defs) {
   return !!func_defs?.some(f => f.name === codeRunnerFunctionName);
 }
 
-export function isCodeRunnerFunctionCallMessage(msg) {
-  return msg.function_call?.name === codeRunnerFunctionName;
+export function getCodeRunnerFunctionCallCode(msg) {
+  const fnCall = msg.function_call;
+  if (!fnCall?.name === codeRunnerFunctionName) return;
+  try {
+    return JSON.parse(fnCall.arguments).code;
+  } catch (e) {
+    return;
+  }
 }
 
-
 // Run python code
-export async function runPython(pythonCode) {
-  return "python code running is not implemented";
+export function runPython(script, onDone) {
+  const pyodideWorker = new Worker("./pyodide-worker.js");
+  let interrupted = false;
+
+  pyodideWorker.onmessage = (event) => {
+    if (interrupted) return;
+    const { output } = event.data;
+    onDone(output);
+  };
+  pyodideWorker.postMessage({ script });
+
+  return {
+    terminate: () => {
+      if (interrupted) return;
+      interrupted = true;
+      pyodideWorker.terminate();
+    },
+  }
 }

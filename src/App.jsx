@@ -234,6 +234,14 @@ export default function App() {
     }
   }, [openAIRequest]);
 
+  const [submitTriggered, setSubmitTriggered] = useState(false);
+  useEffect(() => {
+    if (submitTriggered) {
+      setSubmitTriggered(false);
+      submit();
+    }
+  }, [submitTriggered, submit]);
+
   let { roundTrips, totalCost } = OpenAI.estimateCost(renderedPayload);
 
   const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
@@ -355,6 +363,7 @@ export default function App() {
         streaming={streaming}
         stopReason={stopReason}
         onSubmit={submit}
+        triggerSubmit={() => setSubmitTriggered(true)}
         onCancel={cancel}
         markdown={!!state.markdown}
         renderMath={!!state.render_math}

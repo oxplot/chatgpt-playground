@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build": "mkdir -p out && cp -f favicon.png index.html out && NODE_ENV=production npx esbuild src/main.jsx --minify --bundle --outfile=out/main.js --jsx=automatic --sourcemap=external --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file",
-    "dev": "mkdir -p out && cp -f favicon.png index.html out && npx esbuild src/main.jsx --bundle --outfile=out/main.js --jsx=automatic --sourcemap=inline --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --watch --servedir=out"
+    "build": "mkdir -p out && cp -f pyodide-worker.js favicon.png index.html out && NODE_ENV=production npx esbuild src/main.jsx --minify --bundle --outfile=out/main.js --jsx=automatic --sourcemap=external --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file",
+    "dev": "mkdir -p out && cp -f pyodide-worker.js favicon.png index.html out && npx esbuild src/main.jsx --bundle --outfile=out/main.js --jsx=automatic --sourcemap=inline --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --watch --servedir=out"
   },
   "dependencies": {
     "gpt-tokenizer": "^2.1.1",

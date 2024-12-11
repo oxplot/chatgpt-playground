@@ -10,7 +10,7 @@ import Mermaid from "./Mermaid";
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { codeRunnerFunctionName, isCodeRunnerFunctionCallMessage, runPython } from "./CodeRunner";
+import { codeRunnerFunctionName, getCodeRunnerFunctionCallCode, runPython } from "./CodeRunner";
 
 const typeToRole = {
   'user': 'user',
@@ -54,6 +54,23 @@ const customHighlighterTheme = {
   },
 };
 
+function getCodeRunButton(m) {
+  const code = getCodeRunnerFunctionCallCode(m);
+  if (!code) {
+    return null;
+  }
+  return <span title="Run Code" className="run-code" onClick={() => runCode(code)} />;
+};
+
+function getMarkdownFunctionCallBox({ m, i }) {
+  if (msgType(m) === 'function_call') {
+    const code = getCodeRunnerFunctionCallCode(m);
+    if (code) {
+      return <div className="markdown"><MarkdownRenderer key={i} content={"```py\n" + code + "\n```"} /></div>;
+    }
+  }
+  return null;
+}
 
 function MarkdownRenderer({ content, showCaret, renderMath, renderDiagrams }) {
 
@@ -101,7 +118,7 @@ function MarkdownRenderer({ content, showCaret, renderMath, renderDiagrams }) {
   }, [content, showCaret, renderMath, renderDiagrams]);
 }
 
-export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown, renderMath, renderDiagrams }) {
+export function Messages({ messages, setMessages, triggerSubmit, onSubmit, onCancel, stopReason, streaming, markdown, renderMath, renderDiagrams }) {
 
   const [prevStreamState, setPrevStreamState] = useState(streaming);
   useEffect(() => setPrevStreamState(streaming), [streaming]);
@@ -183,11 +200,21 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
   }, [streaming, onCancel, onSubmit]);
 
   const runCode = useCallback((code) => {
-    var cancel = () => {
-      return; // Not supported currently
+    const runObj = runPython(code, (result) => {
+      const newMsg = {
+        role: 'function',
+        name: codeRunnerFunctionName,
+        content: result,
+      };
+      setMessages([...messages, newMsg]);
+      triggerSubmit();
       document.addEventListener('keydown', escapeHandler, false);
       setRunningCode(null);
-      // INTERRUPT
+    });
+    var cancel = () => {
+      runObj.terminate();
+      document.addEventListener('keydown', escapeHandler, false);
+      setRunningCode(null);
     };
     var escapeHandler = e => {
       if (e.key === 'Escape') {
@@ -195,24 +222,8 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
         cancel();
       }
     };
+
     setRunningCode({ cancel });
-    setTimeout(async () => {
-      let result;
-      try {
-        result = new String(await runPython(code));
-      } catch (e) {
-        result = e.toString();
-      }
-      const newMsg = {
-        role: 'function',
-        name: codeRunnerFunctionName,
-        content: result,
-      };
-      setMessages([...messages, newMsg]);
-      onSubmit();
-      document.addEventListener('keydown', escapeHandler, false);
-      setRunningCode(null);
-    }, 0);
     document.addEventListener('keydown', escapeHandler, false);
   }, [setRunningCode, messages, setMessages, onSubmit]);
 
@@ -221,11 +232,13 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
       !stopReason &&
       prevStreamState &&
       !streaming &&
-      messages.length > 0 &&
-      isCodeRunnerFunctionCallMessage(messages[messages.length - 1])
+      messages.length > 0
     ) {
-      // If last streamed message was a function call, run the code.
-      runCode(messages[messages.length - 1].function_call.arguments.code);
+      const lastMsg = messages[messages.length - 1];
+      const code = getCodeRunnerFunctionCallCode(lastMsg);
+      if (code) {
+        runCode(code);
+      }
     }
   }, [prevStreamState, streaming, stopReason, messages]);
 
@@ -236,7 +249,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
           {(runningCode || streaming) && i === messages.length - 1 ? <label className="type" /> : <>
             <label className="type" onClick={() => switchType(i)} />
             <span className="delete" onClick={() => deleteMsg(i)} />
-            {i === messages.length - 1 && isCodeRunnerFunctionCallMessage(m) ? <span title="Run Code" className="run-code" onClick={() => runCode()} /> : null}
+            {i === messages.length - 1 ? getCodeRunButton(m) : null}
           </>}
           {msgType(m) === 'function_result' || msgType(m) === 'function_call' ?
             <input
@@ -266,8 +279,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
                 <MarkdownRenderer key={i} renderDiagrams={renderDiagrams} renderMath={renderMath} content={m.content} showCaret={i === messages.length - 1 && streaming} />
               }
             </div>
-            :
-            <AutoExtendingTextarea
+            : ((markdown && getMarkdownFunctionCallBox({ m, i })) || <AutoExtendingTextarea
               ref={i === messages.length - 1 ? lastMsgContentRef : undefined}
               onInput={(e) => {
                 const mm = JSON.parse(JSON.stringify(m));
@@ -288,7 +300,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
                 "function_result": "Function Result",
               }[msgType(m)] || ""}
               readOnly={streaming && i === messages.length - 1}
-            />
+            />)
           }
         </div>
       )}
