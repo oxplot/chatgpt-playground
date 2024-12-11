@@ -27,3 +27,7 @@ export function mergeCodeRunnerFuncDef(func_defs, remove) {
 export function codeRunnerFuncDefined(func_defs) {
   return !!func_defs?.some(f => f.name === codeRunnerFunctionName);
 }
+
+export function isCodeRunnerFunctionCallMessage(msg) {
+  return msg.function_call?.name === codeRunnerFunctionName;
+}

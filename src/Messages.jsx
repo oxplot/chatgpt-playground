@@ -10,6 +10,7 @@ import Mermaid from "./Mermaid";
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { isCodeRunnerFunctionCallMessage } from "./CodeRunner";
 
 const typeToRole = {
   'user': 'user',
@@ -201,11 +202,17 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
   }, [setRunningCode, messages, setMessages, onSubmit]);
 
   useEffect(() => {
-    if (!stopReason && prevStreamState && !streaming) {
+    if (
+      !stopReason &&
+      prevStreamState &&
+      !streaming &&
+      messages.length > 0 &&
+      isCodeRunnerFunctionCallMessage(messages[messages.length - 1])
+    ) {
       // If last streamed message was a function call, run the code.
       runCode();
     }
-  }, [prevStreamState, streaming, stopReason]);
+  }, [prevStreamState, streaming, stopReason, messages]);
 
   return <>
     <div className="messages">
