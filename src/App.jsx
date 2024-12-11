@@ -261,6 +261,8 @@ export default function App() {
     document.title = state.title || "ChatGPT Playground";
   }, [state.title]);
 
+  const codeRunnerActive = useMemo(() => codeRunnerFuncDefined(state.openai_payload.functions), [state.openai_payload.functions]);
+
   return <div id="app-container" className={(widescreen ? 'widescreen' : '')}>
     <div className="app column system">
 
@@ -300,7 +302,7 @@ export default function App() {
             type="checkbox"
             title="Enable"
             onChange={e => setPayloadKey('functions', fs => mergeCodeRunnerFuncDef(fs, !e.target.checked))}
-            checked={codeRunnerFuncDefined(state.openai_payload.functions)}
+            checked={codeRunnerActive}
             style={{ marginLeft: "0.5em" }}
           /> <span style={{ color: "#ccc", marginLeft: "0.5em", marginRight: "0.5em" }}>|</span>
           <a
