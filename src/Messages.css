@@ -6,12 +6,21 @@
   border-bottom: 0;
 }
 
-.messages>.message>.delete {
+.messages>.message>.delete, .messages>.message>.run-code {
   cursor: pointer;
   float: right;
   margin-left: 0.5em;
   padding: 0 0.5em;
   color: #555;
+}
+
+.messages>.message>.run-code:hover {
+  color: white;
+  background: rgb(96, 96, 220);
+}
+
+.messages>.message>.run-code::before {
+  content: "⏵";
 }
 
 .messages>.message>.delete:hover {

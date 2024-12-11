@@ -221,6 +221,7 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
           {(runningCode || streaming) && i === messages.length - 1 ? <label className="type" /> : <>
             <label className="type" onClick={() => switchType(i)} />
             <span className="delete" onClick={() => deleteMsg(i)} />
+            {i === messages.length - 1 && isCodeRunnerFunctionCallMessage(m) ? <span title="Run Code" className="run-code" onClick={() => runCode()} /> : null}
           </>}
           {msgType(m) === 'function_result' || msgType(m) === 'function_call' ?
             <input
