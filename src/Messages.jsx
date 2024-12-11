@@ -102,6 +102,11 @@ function MarkdownRenderer({ content, showCaret, renderMath, renderDiagrams }) {
 
 export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason, streaming, markdown, renderMath, renderDiagrams }) {
 
+  const [prevStreamState, setPrevStreamState] = useState(streaming);
+  useEffect(() => setPrevStreamState(streaming), [streaming]);
+
+  const [runningCode, setRunningCode] = useState(null);
+
   // Auto scrolling behavior
 
   const lastMsgContentRef = useRef(null);
@@ -176,6 +181,32 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
     return () => document.removeEventListener('keydown', l);
   }, [streaming, onCancel, onSubmit]);
 
+  const runCode = useCallback(() => {
+    var cancel = () => {
+      document.addEventListener('keydown', escapeHandler, false);
+      setRunningCode(null);
+      // INTERRUPT
+    };
+    var escapeHandler = e => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        cancel();
+      }
+    };
+    setRunningCode({ cancel });
+    setTimeout(() => {
+      cancel();
+    }, 3000);
+    document.addEventListener('keydown', escapeHandler, false);
+  }, [setRunningCode, messages, setMessages, onSubmit]);
+
+  useEffect(() => {
+    if (!stopReason && prevStreamState && !streaming) {
+      // If last streamed message was a function call, run the code.
+      runCode();
+    }
+  }, [prevStreamState, streaming, stopReason]);
+
   return <>
     <div className="messages">
       {messages.map((m, i) =>
@@ -239,13 +270,22 @@ export function Messages({ messages, setMessages, onSubmit, onCancel, stopReason
         </div>
       )}
     </div>
-    {streaming ?
-      <button className="cancel-request" title="Escape" onClick={onCancel}>Cancel</button>
-      :
-      <>
-        <button onClick={addMsg}>Add</button>
-        <button onClick={onSubmit} className="submit-request" title="Ctrl/Cmd+Enter">Submit</button>
-      </>
+    {
+      runningCode ?
+        <div>
+          Running code ...
+          <a onClick={() => runningCode?.cancel()} style={{ marginLeft: "1em", cursor: "pointer" }}>cancel</a>
+        </div>
+        :
+        (
+          streaming ?
+            <button className="cancel-request" title="Escape" onClick={onCancel}>Cancel</button>
+            :
+            <>
+              <button onClick={addMsg}>Add</button>
+              <button onClick={onSubmit} className="submit-request" title="Ctrl/Cmd+Enter">Submit</button>
+            </>
+        )
     }
     {stopReason ? <span className="stop-reason">{stopReason}</span> : ''}
     <div ref={bottomRef} style={{ visibility: "hidden", height: "0" }} />
