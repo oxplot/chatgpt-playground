@@ -151,6 +151,9 @@ export default function App() {
       if (s.replace_variables === undefined) {
         s.replace_variables = true;
       }
+      if (s.vars === undefined) {
+        s.vars = {};
+      }
       validateState(s);
       unvalidatedSetState(s);
       return true;
