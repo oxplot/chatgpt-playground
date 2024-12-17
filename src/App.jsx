@@ -489,6 +489,12 @@ export default function App() {
         setNumber={v => setPayloadKey('frequency_penalty', v)}
       />
 
+      <label>Reasoning Effort<InfoLabel href="reasoning_effort" /></label>
+      <OpenAI.ReasoningEffortDropdown
+        effort={state.openai_payload.reasoning_effort}
+        setEffort={v => setPayloadKey('reasoning_effort', v)}
+      />
+
       <label>Stop sequences<InfoLabel href="stop" /></label>
       <small>One per line. Max 4.</small>
       <StopSequences

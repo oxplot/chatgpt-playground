@@ -322,6 +322,21 @@ export function ModelDropdown({ model, setModel }) {
   </>;
 }
 
+export function ReasoningEffortDropdown({ effort, setEffort }) {
+  return <>
+    <select onChange={e => setEffort(e.target.value || undefined)} value={effort ? effort : ""}>
+      <option value="">Default (Medium)</option>
+      {["Low", "Medium", "High"].map(e => <option key={e.toLowerCase()} value={e.toLowerCase()}>{e}</option>)}
+      {effort && { low: 1, medium: 1, high: 1 }[effort] === undefined &&
+        <>
+          <option disabled>Custom</option>
+          <option value={effort}>{effort}</option>
+        </>
+      }
+    </select>
+  </>;
+}
+
 // This is necessary because the tokenizer is stateful to handle multi-GPT token
 // unicode characters.
 function flushTokenizerState() {
