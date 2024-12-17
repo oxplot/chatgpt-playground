@@ -96,6 +96,10 @@ export const models = [
     alias: "gpt-4o-mini-2024-07-18",
   },
   {
+    id: "o1",
+    alias: "o1-2024-12-17",
+  },
+  {
     id: "o1-preview",
     alias: "o1-preview-2024-09-12",
   },
@@ -137,6 +141,11 @@ export const models = [
     id: "gpt-4o-2024-05-13",
     promptCost: 1e-5 / 2,
     completionCost: 3e-5 / 2,
+  },
+  {
+    id: "o1-2024-12-17",
+    promptCost: (15 / 1e6),
+    completionCost: (60 / 1e6) * 10, // Hidden cost can be 10x higher than actual user visible cost.
   },
   {
     id: "o1-preview-2024-09-12",
